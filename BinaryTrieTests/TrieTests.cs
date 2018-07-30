@@ -1,0 +1,133 @@
+using System;
+using BinaryTrieImpl;
+using Xunit;
+
+namespace BinaryTrieTests
+{
+    public class TrieTests
+    {
+        public PlugableBinaryTrie<int> GetTrie(NodeContainerType t)
+        {
+            INodesContainer<int> container;
+            if (t == NodeContainerType.ArrayBacked)
+            {
+                container = new NodesContainer<int>();
+            }
+            else
+            {
+                container = new MemoryMappedNodeContainer<int>(RName(),0,90000); 
+            }
+            
+            var trie = new PlugableBinaryTrie<int>(container);
+
+            return trie;
+        }  
+        
+        private string RName()
+        {
+            return "foo_" + Guid.NewGuid().ToString().Replace("-", "");
+        }
+        
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void ItemsCanBeAddedAndRetrievedByKey(NodeContainerType t)
+        {
+            var trie = GetTrie(t);
+            Assert.Equal(0, trie.Count);
+            
+            trie.Add(10,5);
+            
+            Assert.Equal(1, trie.Count);
+
+            var value = -1;
+            var hasKey = trie.TryGetValue(10, out value);
+            Assert.True(hasKey);
+            Assert.Equal(5, value);
+        }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void ValueCanBeAddedByKey0(NodeContainerType t)
+        {
+            var trie = GetTrie(t);
+            
+            Assert.False(trie.TryGetValue(0, out int result));
+            
+            trie.Add(0, 100);
+
+            var addedValue = -1;
+            Assert.True(trie.TryGetValue(0, out addedValue));
+            Assert.Equal(100, addedValue);
+        }
+        
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void ValueCanBeAddedByKeyOne(NodeContainerType t)
+        {
+            var trie = GetTrie(t);
+            
+            Assert.False(trie.TryGetValue(1, out int result));
+            
+            trie.Add(1, 100);
+
+            var addedValue = -1;
+            Assert.True(trie.TryGetValue(1, out addedValue));
+            Assert.Equal(100, addedValue);
+        }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void ValueCanBeAddedByDoubleKey(NodeContainerType t)
+        {
+            var trie = GetTrie(t);
+            trie.Add(1, 10, false);
+            trie.Add(2, 10, true);
+            
+            Assert.False(trie.TryGetValue(1, out _));
+            Assert.False(trie.TryGetValue(2, out _));
+            Assert.False(trie.TryGetValue(0, out _));
+
+            var addedValue = -1;
+            trie.TryGetValue(1, out addedValue, false);
+            Assert.True(trie.TryGetValue(2, out addedValue, true));
+            
+            Assert.Equal(1, trie.Count);
+            
+            trie.Add(1,11);
+            trie.Add(2,12);
+            
+            Assert.True(trie.TryGetValue(1, out _));
+            Assert.True(trie.TryGetValue(2, out _));
+            trie.TryGetValue(1, out _, false);
+            Assert.True(trie.TryGetValue(2, out _));
+        }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void ValueCanRemoved(NodeContainerType t)
+        {
+            var trie = GetTrie(t);
+            
+            trie.Add(1,10);
+            Assert.True(trie.TryGetValue(1, out _));
+            Assert.True(trie.Count==1);
+            
+            Assert.True(trie.TryRemove(1));
+            Assert.Equal(0, trie.Count);
+            Assert.False(trie.TryRemove(1));
+            
+            Assert.False(trie.TryGetValue(1, out _));
+        }
+     }
+
+    public enum NodeContainerType
+    {
+        ArrayBacked,
+        MemoryMappedBacked
+    }
+}

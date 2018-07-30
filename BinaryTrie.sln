@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryTrieImpl", "BinaryTrieImpl\BinaryTrieImpl.csproj", "{7CC50A0A-7644-49C3-B80A-384947767ED3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryTrieTests", "BinaryTrieTests\BinaryTrieTests.csproj", "{F5E6EBB0-D01C-4FA8-8ECA-0590E2318A4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsol", "TestConsol\TestConsol.csproj", "{0509DC7B-8EEB-4712-B232-0FE1BA99ECC0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7CC50A0A-7644-49C3-B80A-384947767ED3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CC50A0A-7644-49C3-B80A-384947767ED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CC50A0A-7644-49C3-B80A-384947767ED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CC50A0A-7644-49C3-B80A-384947767ED3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5E6EBB0-D01C-4FA8-8ECA-0590E2318A4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5E6EBB0-D01C-4FA8-8ECA-0590E2318A4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5E6EBB0-D01C-4FA8-8ECA-0590E2318A4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5E6EBB0-D01C-4FA8-8ECA-0590E2318A4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0509DC7B-8EEB-4712-B232-0FE1BA99ECC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0509DC7B-8EEB-4712-B232-0FE1BA99ECC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0509DC7B-8EEB-4712-B232-0FE1BA99ECC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0509DC7B-8EEB-4712-B232-0FE1BA99ECC0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
