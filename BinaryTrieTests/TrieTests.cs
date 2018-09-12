@@ -130,23 +130,34 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         public void KeyValuesCanBeSortedByKey(NodeContainerType t)
         {
-            var trie = GetTrie(NodeContainerType.ArrayBacked, initialSize: 100000*64);
+            var trie = GetTrie(NodeContainerType.ArrayBacked, initialSize: 1000);
 
-            for(int i = 100000; i>= 0; i--)
+            for(int i = 3; i > 0; i--)
             {
                 trie.Add(i, i);
             }
 
-            var prevKey = -1;
+            
+            for (int i = 1; i <= 3; i++)
+            {
+                var value = -1;
+                var hasKey = trie.TryGetValue(i, out value);
+                Assert.True(hasKey);
+                Assert.Equal(i, value);
+            }
+
+            var expectedKey = 1;
             foreach(var (key, value) in trie.GetEntrySet())
             {
                 Assert.Equal(1, key.Count);
                 var keyValue = key[0];
                 Assert.Equal(keyValue, value);
                 
-                Assert.True(prevKey <= keyValue);
-                prevKey = keyValue;
+                Assert.True(expectedKey == keyValue);
+                expectedKey++;
             }
+            
+            Assert.Equal(4, expectedKey);
         }
      }
 

@@ -80,6 +80,14 @@ namespace BinaryTrieImpl
 
                 return Node_0;
             }
+            
+            
+        }
+
+        public override string ToString()
+        {
+            return
+                $"{nameof(Key)}: {Key}, {nameof(Node_0)}: {Node_0}, {nameof(Node_1)}: {Node_1}, {nameof(Value)}: {Value}";
         }
     }
 }

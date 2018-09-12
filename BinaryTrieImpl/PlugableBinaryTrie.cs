@@ -179,10 +179,8 @@ namespace BinaryTrieImpl
                     {
                         break;
                     }
-                    else
-                    {
-                        node = nodes.Pop();
-                    }
+
+                    node = nodes.Pop();
                 }
                 else
                 {
@@ -274,9 +272,14 @@ namespace BinaryTrieImpl
         public bool LeftVisited {get; set;}
         public bool RightVisited {get; set;}
 
-        internal bool AllVisited()
+        public bool AllVisited()
         {
             return Node.IsTerminal() || (LeftVisited && RightVisited);
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Node)}: {Node}, {nameof(LeftVisited)}: {LeftVisited}, {nameof(RightVisited)}: {RightVisited}";
         }
     }
 }
