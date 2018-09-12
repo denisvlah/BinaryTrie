@@ -33,7 +33,7 @@ namespace BinaryTrieImpl
         private int AddNewNode(int nodeIndex, ref BitVector32 bitVector, int mask)
         {
             var bit = bitVector[mask];
-            ref var node = ref Node(nodeIndex);
+            var node = Node(nodeIndex);
             var nextNodeIndex = node.NextNodeIndex(bit);
             var newNodeParentIndex = node.CurrentIndex;
 
@@ -44,6 +44,8 @@ namespace BinaryTrieImpl
                 node.AddIndex(bit, newNode.CurrentIndex);
                 newNode.Key = bit;
                 newNode.ParentIndex = newNodeParentIndex;
+                _nodes.ReassignNode(ref node);
+                _nodes.ReassignNode(ref newNode);
 
                 return newNode.CurrentIndex;
             }
@@ -166,15 +168,12 @@ namespace BinaryTrieImpl
 
         public IEnumerable<(List<int>, T)> GetEntrySet()
         {
-            var nodes = new Stack<TrieNode<T>>(_maxKeySize);
-            var node = Node(0);
-
-            var preferLeft = true;
+            var nodes = new Stack<NodeWrapper<T>>(_maxKeySize);
+            var node = new NodeWrapper<T>(Node(0));            
 
             while(true)
-            {
-
-                if (node.IsTerminal())
+            {                
+                if (node.AllVisited())
                 {
                     if (nodes.Count == 0)
                     {
@@ -183,29 +182,101 @@ namespace BinaryTrieImpl
                     else
                     {
                         node = nodes.Pop();
-                        preferLeft = false;
                     }
                 }
                 else
                 {
-                    preferLeft = true;
                     nodes.Push(node);
-                    var nextNodeIndex  = node.GetNextIndex(preferLeft);
-                    node = Node(nextNodeIndex);
+                    var nextNodeIndex  = GetNextNodeIndex(
+                        node
+                    );
                     
-                    if (node.HasValue)
+                    node = new NodeWrapper<T>(Node(nextNodeIndex) );
+                
+                    if (node.Node.HasValue)
                     {
-                        yield return (GetIntKey(nodes, node.Key), node.Value);
-                    }
+                        yield return (GetIntKey(nodes, node.Node.Key), node.Node.Value);
+                    }                        
 
                 }
 
             }
         }
 
-        private List<int> GetIntKey(Stack<TrieNode<T>> nodes, bool lastKey)
+        private int GetNextNodeIndex(NodeWrapper<T> node)
         {
-            throw new NotImplementedException();
+            if (node.LeftVisited == false)
+            {                
+                node.LeftVisited = true;
+                if (node.Node.Node_0 != -1)
+                {
+                    return node.Node.Node_0;
+                }
+
+                node.RightVisited = true;
+                return node.Node.Node_1;
+            }
+
+            if (node.RightVisited == false)
+            {
+                node.RightVisited = true;
+                if (node.Node.Node_1 != -1)
+                {
+                    return node.Node.Node_1;
+                }
+                node.LeftVisited = true;
+                return node.Node.Node_0;
+            }
+
+            return -1;
+        }
+
+        private List<int> GetIntKey(Stack<NodeWrapper<T>> nodes, bool lastKey)
+        {
+            var resultList = new List<int>();
+            var index = 0;
+            var bitVector = new BitVector32(0);
+            var bitMask = BitVector32.CreateMask();
+            foreach(var nodeWrapper in nodes.Reverse().Skip(1))
+            {
+                var node = nodeWrapper.Node;
+                bitVector[bitMask] = node.Key;
+                bitMask = BitVector32.CreateMask(bitMask);
+
+                if (index != 0 && index % 32 == 0)
+                {
+                    resultList.Add(bitVector.Data);
+                    bitVector = new BitVector32(0);
+                    bitMask = BitVector32.CreateMask();
+                }                
+
+                index++;
+            }
+
+            bitVector[bitMask] = lastKey;
+            resultList.Add(bitVector.Data);
+
+            return resultList;
+        }
+    }
+
+    class NodeWrapper<T>
+    {
+        public NodeWrapper(TrieNode<T> node, bool leftVisited = false, bool rightVisited = false)
+        {
+            Node = node;
+            LeftVisited = leftVisited;
+            RightVisited = rightVisited;
+
+            
+        }
+        public TrieNode<T> Node { get; set; }
+        public bool LeftVisited {get; set;}
+        public bool RightVisited {get; set;}
+
+        internal bool AllVisited()
+        {
+            return Node.IsTerminal() || (LeftVisited && RightVisited);
         }
     }
 }

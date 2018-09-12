@@ -13,6 +13,7 @@ namespace BinaryTrieImpl
         private readonly string _fileName;
         private readonly long _offset;
         private readonly long _size;
+        private readonly long _fullSize;
         private MemoryMappedFile _mmf;
         private MemoryMappedViewAccessor _accessor;
         private int _currentIndex;
@@ -20,11 +21,16 @@ namespace BinaryTrieImpl
         public MemoryMappedNodeContainer(string fileName, long offset, long size)
         {
             _fileName = fileName;
-            _offset = offset;
-            _size = size;
+            _offset = offset;            
             _size = SizeHelper.SizeOf(typeof(TrieNode<T>));
-            _mmf = MemoryMappedFile.CreateFromFile("ImgA", FileMode.OpenOrCreate, null, size);
-            _accessor = _mmf.CreateViewAccessor(offset, size);
+            _fullSize = size * _size + _offset;
+            _mmf = MemoryMappedFile.CreateFromFile(
+                _fileName, 
+                FileMode.OpenOrCreate, 
+                null, 
+                _fullSize
+            );
+            _accessor = _mmf.CreateViewAccessor(offset, _fullSize);
             
             _currentIndex = 0;
         }

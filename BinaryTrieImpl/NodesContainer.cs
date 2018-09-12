@@ -5,12 +5,18 @@ namespace BinaryTrieImpl
         //TODO: implement resizing when capacity reached.
         //TODO: implement thread safity
         //TODO: implement custom serialization/deserialization
-        TrieNode<T>[] _array = new TrieNode<T>[10000];
+        private TrieNode<T>[] _array;
 
         private int _index = 0;
 
-        public ref TrieNode<T> AddNewNode()
+        public NodesContainer(int? initialSize = null)
         {
+            var sizeValue = initialSize ?? 100000;
+            _array = new TrieNode<T>[sizeValue];
+        }
+
+        public ref TrieNode<T> AddNewNode()
+        {            
             var index = _index;            
             _index++;
             _array[index] = new TrieNode<T>();

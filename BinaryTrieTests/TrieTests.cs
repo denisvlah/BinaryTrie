@@ -6,16 +6,17 @@ namespace BinaryTrieTests
 {
     public class TrieTests
     {
-        public PlugableBinaryTrie<int> GetTrie(NodeContainerType t)
+        public PlugableBinaryTrie<int> GetTrie(NodeContainerType t, int? initialSize = null)
         {
+            var size = initialSize ?? 90000;
             INodesContainer<int> container;
             if (t == NodeContainerType.ArrayBacked)
             {
-                container = new NodesContainer<int>();
+                container = new NodesContainer<int>(size);
             }
             else
             {
-                container = new MemoryMappedNodeContainer<int>(RName(),0,90000); 
+                container = new MemoryMappedNodeContainer<int>(RName(), 0, size); 
             }
             
             var trie = new PlugableBinaryTrie<int>(container);
@@ -122,6 +123,30 @@ namespace BinaryTrieTests
             Assert.False(trie.TryRemove(1));
             
             Assert.False(trie.TryGetValue(1, out _));
+        }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void KeyValuesCanBeSortedByKey(NodeContainerType t)
+        {
+            var trie = GetTrie(NodeContainerType.ArrayBacked, initialSize: 100000*64);
+
+            for(int i = 100000; i>= 0; i--)
+            {
+                trie.Add(i, i);
+            }
+
+            var prevKey = -1;
+            foreach(var (key, value) in trie.GetEntrySet())
+            {
+                Assert.Equal(1, key.Count);
+                var keyValue = key[0];
+                Assert.Equal(keyValue, value);
+                
+                Assert.True(prevKey <= keyValue);
+                prevKey = keyValue;
+            }
         }
      }
 
