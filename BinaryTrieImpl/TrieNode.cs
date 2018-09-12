@@ -1,3 +1,5 @@
+using System;
+
 namespace BinaryTrieImpl
 {
     public struct TrieNode<T>
@@ -56,6 +58,28 @@ namespace BinaryTrieImpl
         {
             HasValue = false;
             _value = default(T);
+        }
+
+        public int GetNextIndex(bool preferLeft)
+        {
+            if (preferLeft)
+            {
+                if (Node_0 != -1)
+                {
+                    return Node_0;
+                }
+
+                return Node_1;
+            }
+            else
+            {
+                if (Node_1 != -1)
+                {
+                    return Node_1;
+                }
+
+                return Node_0;
+            }
         }
     }
 }

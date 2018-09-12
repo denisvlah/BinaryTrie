@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
@@ -32,7 +33,7 @@ namespace BinaryTrieImpl
         private int AddNewNode(int nodeIndex, ref BitVector32 bitVector, int mask)
         {
             var bit = bitVector[mask];
-            var node = Node(nodeIndex);
+            ref var node = ref Node(nodeIndex);
             var nextNodeIndex = node.NextNodeIndex(bit);
             var newNodeParentIndex = node.CurrentIndex;
 
@@ -43,8 +44,6 @@ namespace BinaryTrieImpl
                 node.AddIndex(bit, newNode.CurrentIndex);
                 newNode.Key = bit;
                 newNode.ParentIndex = newNodeParentIndex;
-                _nodes.ReassignNode(ref node);
-                _nodes.ReassignNode(ref newNode);
 
                 return newNode.CurrentIndex;
             }
@@ -165,10 +164,48 @@ namespace BinaryTrieImpl
 
         public int Count {get { return _count;}}
 
-        public List<(List<int>, T)> GetEntrySet()
+        public IEnumerable<(List<int>, T)> GetEntrySet()
+        {
+            var nodes = new Stack<TrieNode<T>>(_maxKeySize);
+            var node = Node(0);
+
+            var preferLeft = true;
+
+            while(true)
+            {
+
+                if (node.IsTerminal())
+                {
+                    if (nodes.Count == 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        node = nodes.Pop();
+                        preferLeft = false;
+                    }
+                }
+                else
+                {
+                    preferLeft = true;
+                    nodes.Push(node);
+                    var nextNodeIndex  = node.GetNextIndex(preferLeft);
+                    node = Node(nextNodeIndex);
+                    
+                    if (node.HasValue)
+                    {
+                        yield return (GetIntKey(nodes, node.Key), node.Value);
+                    }
+
+                }
+
+            }
+        }
+
+        private List<int> GetIntKey(Stack<TrieNode<T>> nodes, bool lastKey)
         {
             throw new NotImplementedException();
         }
-
     }
 }
