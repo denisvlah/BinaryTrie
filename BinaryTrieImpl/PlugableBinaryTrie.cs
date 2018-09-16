@@ -12,12 +12,18 @@ namespace BinaryTrieImpl
         //TODO: implement thread safity and custom serialization
         private readonly INodesContainer<T> _nodes;        
         private int _count = 0;
-        private int _maxKeySize = 0;        
+        private int _maxKeySize = 0;
+        private int[] _invertedMasks = new int[32];    
 
         public PlugableBinaryTrie(INodesContainer<T> container)
         {
             _nodes = container ?? throw new ArgumentNullException(nameof(container));
             _nodes.AddNewNode();
+            for(int i=0; i<32; i++){
+                _invertedMasks[i] = 1 << i;
+            }
+
+            _invertedMasks = _invertedMasks.Reverse().ToArray();
             
         }
 
@@ -55,7 +61,7 @@ namespace BinaryTrieImpl
 
                 return newNode.CurrentIndex;
             }
-        }
+        }        
 
         public void Add(int key, T value, bool isLastElement = true)
         {
@@ -64,10 +70,11 @@ namespace BinaryTrieImpl
             {
                 nodeIndex = _lastNodeIndex;
             }
-            var bitVector = new BitVector32(key);
+            var bitVector = new BitVector32(key);            
             for(int i=0; i<32; i++)
-            {
-                var mask = 1 << i;
+            {   
+                var mask = _invertedMasks[i];
+                Console.WriteLine(new BitVector32(mask).ToString());
                 nodeIndex = AddNewNode(nodeIndex, ref bitVector, mask);
             }
 
@@ -94,10 +101,10 @@ namespace BinaryTrieImpl
                 nodeIndex = _lastNodeIndex;
             }
 
-            TrieNode<T> node = default;
+            TrieNode<T> node = default;            
             for(var i=0; i<32; i++)
             {
-                var mask = 1 << i;
+                var mask = _invertedMasks[i];
                 var bit = bitVector[mask];
                 node = Node(nodeIndex);
                 nodeIndex = node.NextNodeIndex(bit);
@@ -134,10 +141,11 @@ namespace BinaryTrieImpl
                 nodeIndex = _lastNodeIndex;
             }
 
-            TrieNode<T> node = default;
+            TrieNode<T> node = default;            
             for(int i=0; i<32; i++)
             {
-                var mask = 1 << i;
+                var mask = _invertedMasks[i];
+                Console.WriteLine(new BitVector32(mask).ToString());
                 var bit = bitVector[mask];
                 node = Node(nodeIndex);
                 var nextIndex = node.NextNodeIndex(bit);
@@ -168,7 +176,7 @@ namespace BinaryTrieImpl
 
         public IEnumerable<(List<int>, T)> GetEntrySet()
         {
-            var nodes = new Stack<NodeWrapper<T>>(_maxKeySize);
+            var nodes = new List<NodeWrapper<T>>(_maxKeySize);
             var node = new NodeWrapper<T>(Node(0));            
 
             while(true)
@@ -180,11 +188,11 @@ namespace BinaryTrieImpl
                         break;
                     }
 
-                    node = nodes.Pop();
+                    node = Pop(nodes);
                 }
                 else
                 {
-                    nodes.Push(node);
+                    Push(nodes, node);
                     var nextNodeIndex  = GetNextNodeIndex(
                         node
                     );
@@ -199,6 +207,19 @@ namespace BinaryTrieImpl
                 }
 
             }
+        }
+
+        private void Push(List<NodeWrapper<T>> nodes, NodeWrapper<T> node)
+        {
+            nodes.Add(node);
+        }
+
+        private NodeWrapper<T> Pop(List<NodeWrapper<T>> nodes)
+        {
+            var node = nodes[nodes.Count - 1];
+            nodes.RemoveAt(nodes.Count -1);
+
+            return node;
         }
 
         private int GetNextNodeIndex(NodeWrapper<T> node)
@@ -229,29 +250,29 @@ namespace BinaryTrieImpl
             return -1;
         }
 
-        private List<int> GetIntKey(Stack<NodeWrapper<T>> nodes, bool lastKey)
+        private List<int> GetIntKey(List<NodeWrapper<T>> nodes, bool lastKey)
         {
             var resultList = new List<int>();
             var index = 0;
             var bitVector = new BitVector32(0);
-            var bitMask = BitVector32.CreateMask();
-            foreach(var nodeWrapper in nodes.Reverse().Skip(1))
-            {
-                var node = nodeWrapper.Node;
+            var bitMask = 2;
+            for(int i=nodes.Count-1; i>=1; i--)
+            {                
+                var node = nodes[i].Node;
                 bitVector[bitMask] = node.Key;
-                bitMask = BitVector32.CreateMask(bitMask);
+                bitMask = bitMask << 1;
 
                 if (index != 0 && index % 32 == 0)
                 {
                     resultList.Add(bitVector.Data);
                     bitVector = new BitVector32(0);
-                    bitMask = BitVector32.CreateMask();
+                    bitMask = 1;
                 }                
 
                 index++;
-            }
+            }            
 
-            bitVector[bitMask] = lastKey;
+            bitVector[_invertedMasks[31]] = lastKey;
             resultList.Add(bitVector.Data);
 
             return resultList;
