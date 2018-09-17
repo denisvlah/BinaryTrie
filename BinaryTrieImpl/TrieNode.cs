@@ -13,8 +13,7 @@ namespace BinaryTrieImpl
         {
             return Node_0 == -1 && Node_1 == -1;
         }
-
-        public int ParentIndex;
+       
         public bool HasValue;
         public int Node_0;
         public int Node_1;
@@ -25,8 +24,7 @@ namespace BinaryTrieImpl
             CurrentIndex = currentIndex;
             Node_0 = i;
             Node_1 = i1;
-            _value = default;
-            ParentIndex = -1;
+            _value = default;            
             Key = false;
             HasValue = false;
         }       

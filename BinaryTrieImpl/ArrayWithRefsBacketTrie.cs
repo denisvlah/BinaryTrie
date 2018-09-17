@@ -32,7 +32,7 @@ namespace BinaryTrieImpl
         {
             var bit = bitVector[mask];
             var nextNodeIndex = Node(nodeIndex).NextNodeIndex(bit);
-            var newNodeParentIndex = Node(nodeIndex).CurrentIndex;
+            
 
             if (nextNodeIndex == -1)
             {
@@ -40,7 +40,7 @@ namespace BinaryTrieImpl
                 ref var newNode = ref _nodes.AddNewNode();
                 Node(nodeIndex).AddIndex(bit, newNode.CurrentIndex);
                 newNode.Key = bit;
-                newNode.ParentIndex = newNodeParentIndex;
+                
 
                 return newNode.CurrentIndex;
             }

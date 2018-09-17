@@ -40,16 +40,14 @@ namespace BinaryTrieImpl
         {
             var bit = bitVector[mask];
             var node = Node(nodeIndex);
-            var nextNodeIndex = node.NextNodeIndex(bit);
-            var newNodeParentIndex = node.CurrentIndex;
+            var nextNodeIndex = node.NextNodeIndex(bit);            
 
             if (nextNodeIndex == -1)
             {
                 
                 ref var newNode = ref _nodes.AddNewNode();
                 node.AddIndex(bit, newNode.CurrentIndex);
-                newNode.Key = bit;
-                newNode.ParentIndex = newNodeParentIndex;
+                newNode.Key = bit;                
                 _nodes.ReassignNode(ref node);
                 _nodes.ReassignNode(ref newNode);
 
@@ -73,8 +71,7 @@ namespace BinaryTrieImpl
             var bitVector = new BitVector32(key);            
             for(int i=0; i<32; i++)
             {   
-                var mask = _invertedMasks[i];
-                Console.WriteLine(new BitVector32(mask).ToString());
+                var mask = _invertedMasks[i];                
                 nodeIndex = AddNewNode(nodeIndex, ref bitVector, mask);
             }
 
@@ -144,8 +141,7 @@ namespace BinaryTrieImpl
             TrieNode<T> node = default;            
             for(int i=0; i<32; i++)
             {
-                var mask = _invertedMasks[i];
-                Console.WriteLine(new BitVector32(mask).ToString());
+                var mask = _invertedMasks[i];                
                 var bit = bitVector[mask];
                 node = Node(nodeIndex);
                 var nextIndex = node.NextNodeIndex(bit);
@@ -185,17 +181,15 @@ namespace BinaryTrieImpl
                 {
                     if (nodes.Count == 0)
                     {
-                        break;
+                        yield break;
                     }
 
-                    node = Pop(nodes);
+                    Pop(nodes, ref node);
                 }
                 else
-                {
-                    Push(nodes, node);
-                    var nextNodeIndex  = GetNextNodeIndex(
-                        node
-                    );
+                {                   
+                    var nextNodeIndex  = GetNextNodeIndex(ref node);
+                    Push(nodes, ref node);
                     
                     node = new NodeWrapper<T>(Node(nextNodeIndex) );
                 
@@ -209,20 +203,41 @@ namespace BinaryTrieImpl
             }
         }
 
-        private void Push(List<NodeWrapper<T>> nodes, NodeWrapper<T> node)
+        public T GetValue(int[] keys, T defaultValue = default)
+        {
+            T result = defaultValue;
+            for(int i = 0; i<keys.Length - 1; i++){
+                var hasValue = TryGetValue(keys[i], out result, false);              
+            }
+
+            TryGetValue(keys[keys.Length - 1], out result);
+
+            return result;
+        }
+
+        public void Add(int[] keys, T v2)
+        {
+            for (int i =0; i< keys.Length - 1; i++){
+                Add(keys[i], v2, false);
+            }
+
+            Add(keys[keys.Length -1], v2);
+        }
+
+        private void Push(List<NodeWrapper<T>> nodes, ref NodeWrapper<T> node)
         {
             nodes.Add(node);
         }
 
-        private NodeWrapper<T> Pop(List<NodeWrapper<T>> nodes)
+        private NodeWrapper<T> Pop(List<NodeWrapper<T>> nodes, ref NodeWrapper<T> node)
         {
-            var node = nodes[nodes.Count - 1];
+            node = nodes[nodes.Count - 1];
             nodes.RemoveAt(nodes.Count -1);
 
             return node;
         }
 
-        private int GetNextNodeIndex(NodeWrapper<T> node)
+        private int GetNextNodeIndex(ref NodeWrapper<T> node)
         {
             if (node.LeftVisited == false)
             {                
@@ -279,7 +294,7 @@ namespace BinaryTrieImpl
         }
     }
 
-    class NodeWrapper<T>
+    struct NodeWrapper<T>
     {
         public NodeWrapper(TrieNode<T> node, bool leftVisited = false, bool rightVisited = false)
         {
@@ -295,7 +310,12 @@ namespace BinaryTrieImpl
 
         public bool AllVisited()
         {
-            return Node.IsTerminal() || (LeftVisited && RightVisited);
+            return 
+                Node.IsTerminal() || 
+                (LeftVisited && RightVisited) ||
+                (LeftVisited && Node.Node_1 == -1) ||
+                (RightVisited && Node.Node_0 == -1)
+                ;
         }
 
         public override string ToString()

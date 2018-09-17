@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using BinaryTrieImpl;
 using Xunit;
 
@@ -130,15 +131,15 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         public void KeyValuesCanBeSortedByKey(NodeContainerType t)
         {
-            var trie = GetTrie(NodeContainerType.ArrayBacked, initialSize: 1000);
+            var trie = GetTrie(t, initialSize: 10000000);
 
-            for(int i = 3; i > 0; i--)
+            for(int i = 100000; i > 0; i--)
             {
                 trie.Add(i, i);
             }
 
             
-            for (int i = 1; i <= 3; i++)
+            for (int i = 1; i <= 100000; i++)
             {
                 var value = -1;
                 var hasKey = trie.TryGetValue(i, out value);
@@ -157,8 +158,36 @@ namespace BinaryTrieTests
                 expectedKey++;
             }
             
-            Assert.Equal(4, expectedKey);
+            Assert.Equal(100001, expectedKey);
         }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void ComplexKeysCanBeSorted(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);
+            trie.Add(new []{3, 1}, 1);
+            trie.Add(new []{2, 10}, 10);
+
+            Assert.Equal(2, trie.Count);
+
+            Assert.Equal(1, trie.GetValue(new []{3,1}));
+            Assert.Equal(10, trie.GetValue(new []{2, 10}));
+
+            var sortedEntries = trie.GetEntrySet().ToArray();
+
+            Assert.Equal(2, sortedEntries.Length);
+            Assert.Equal(10, sortedEntries[0].Item2);
+            Assert.Equal(1, sortedEntries[1].Item2);
+
+            Assert.Equal(2, sortedEntries[0].Item1[0]);
+            Assert.Equal(10, sortedEntries[0].Item1[1]);
+
+            Assert.Equal(3, sortedEntries[1].Item1[0]);
+            Assert.Equal(1, sortedEntries[1].Item1[1]);
+
+        }        
      }
 
     public enum NodeContainerType
