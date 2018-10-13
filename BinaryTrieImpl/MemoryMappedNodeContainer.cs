@@ -140,6 +140,15 @@ namespace BinaryTrieImpl
         {
             return _valuesCount;
         }
+
+        public int GetLastNodeIndex()
+        {
+            return _currentIndex;
+        }
+
+        public string FileName {get{ return _fileName;}}
+
+        public long FileSizeBytes{get{return _fullSize;}}
     }
     
     static class SizeHelper
