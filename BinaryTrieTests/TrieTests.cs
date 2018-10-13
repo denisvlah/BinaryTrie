@@ -172,6 +172,10 @@ namespace BinaryTrieTests
 
             Assert.Equal(2, trie.Count);
 
+            var missingValue = trie.GetValue(new []{3, 50}, -1);
+
+            Assert.Equal(-1, missingValue);
+
             Assert.Equal(1, trie.GetValue(new []{3,1}));
             Assert.Equal(10, trie.GetValue(new []{2, 10}));
 

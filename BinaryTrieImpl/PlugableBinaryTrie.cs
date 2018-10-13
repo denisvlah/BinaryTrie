@@ -205,14 +205,17 @@ namespace BinaryTrieImpl
 
         public T GetValue(int[] keys, T defaultValue = default)
         {
-            T result = defaultValue;
+            T result;
             for(int i = 0; i<keys.Length - 1; i++){
                 var hasValue = TryGetValue(keys[i], out result, false);              
             }
 
-            TryGetValue(keys[keys.Length - 1], out result);
+            if (TryGetValue(keys[keys.Length - 1], out result))
+            {
+                return result;
+            }
 
-            return result;
+            return defaultValue;
         }
 
         public void Add(int[] keys, T v2)
@@ -270,22 +273,20 @@ namespace BinaryTrieImpl
             var resultList = new List<int>();
             var index = 0;
             var bitVector = new BitVector32(0);
-            var bitMask = 2;
-            for(int i=nodes.Count-1; i>=1; i--)
-            {                
-                var node = nodes[i].Node;
-                bitVector[bitMask] = node.Key;
-                bitMask = bitMask << 1;
 
-                if (index != 0 && index % 32 == 0)
+            for(int i=1; i<nodes.Count; i++)
+            {
+                var mask = _invertedMasks[index];
+                bitVector[mask] = nodes[i].Node.Key;
+                index++;
+                
+                if (index == 32)
                 {
                     resultList.Add(bitVector.Data);
                     bitVector = new BitVector32(0);
-                    bitMask = 1;
-                }                
-
-                index++;
-            }            
+                    index = 0;
+                }
+            }                        
 
             bitVector[_invertedMasks[31]] = lastKey;
             resultList.Add(bitVector.Data);
