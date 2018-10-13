@@ -13,11 +13,11 @@ namespace BinaryTrieTests
             INodesContainer<int> container;
             if (t == NodeContainerType.ArrayBacked)
             {
-                container = new NodesContainer<int>(size);
+                container = new ArrayNodesContainer<int>(size);
             }
             else
             {
-                container = new MemoryMappedNodeContainer<int>(RName(), 0, size); 
+                container = new MemoryMappedNodeContainer<int>(RName(), size); 
             }
             
             var trie = new PlugableBinaryTrie<int>(container);

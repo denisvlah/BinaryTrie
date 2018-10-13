@@ -11,7 +11,7 @@ namespace BinaryTrieTests
         private MemoryMappedNodeContainer<int> c;
         public MemoryMappedContainerTests()
         {
-            c = new MemoryMappedNodeContainer<int>(RName(),0,90000);
+            c = new MemoryMappedNodeContainer<int>(RName(),90000);
         }
 
         public void Dispose()

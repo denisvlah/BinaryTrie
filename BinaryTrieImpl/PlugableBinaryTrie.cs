@@ -7,18 +7,17 @@ using System.Runtime.CompilerServices;
 namespace BinaryTrieImpl
 {    
 
-    public class PlugableBinaryTrie<T>
+    public class PlugableBinaryTrie<T>: IDisposable
     {
         //TODO: implement thread safity and custom serialization
-        private readonly INodesContainer<T> _nodes;        
-        private int _count = 0;
+        private readonly INodesContainer<T> _nodes;                
         private int _maxKeySize = 0;
         private int[] _invertedMasks = new int[32];    
 
         public PlugableBinaryTrie(INodesContainer<T> container)
         {
             _nodes = container ?? throw new ArgumentNullException(nameof(container));
-            _nodes.AddNewNode();
+            _nodes.InitFirstNode();
             for(int i=0; i<32; i++){
                 _invertedMasks[i] = 1 << i;
             }
@@ -79,7 +78,7 @@ namespace BinaryTrieImpl
             {
                 _lastNodeIndex = -1;
                 _nodes.SetValue(nodeIndex, value);                
-                _count++;
+                _nodes.IncrementValuesCount();
                 _maxKeySize = _currentKeySize > _maxKeySize ? _currentKeySize : _maxKeySize;                
             }
             else
@@ -119,7 +118,7 @@ namespace BinaryTrieImpl
                 node.RemoveValue();
                 _nodes.ReassignNode(ref node);
                 _lastNodeIndex = -1;
-                _count--;
+                _nodes.DecrementValuesCount();                
                 return hasValue;
             }
 
@@ -168,7 +167,7 @@ namespace BinaryTrieImpl
             return node.HasValue;
         }
 
-        public int Count {get { return _count;}}
+        public int Count {get { return _nodes.GetValuesCount();}}
 
         public IEnumerable<(List<int>, T)> GetEntrySet(bool reuseKeysList = false)
         {
@@ -296,6 +295,11 @@ namespace BinaryTrieImpl
             resultList.Add(bitVector.Data);
 
             return resultList;
+        }
+
+        public void Dispose()
+        {            
+            _nodes.Dispose();
         }
     }
 
