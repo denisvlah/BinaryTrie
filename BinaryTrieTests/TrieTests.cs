@@ -191,8 +191,65 @@ namespace BinaryTrieTests
             Assert.Equal(3, sortedEntries[1].Item1[0]);
             Assert.Equal(1, sortedEntries[1].Item1[1]);
 
-        }        
+        }      
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void ComplexKeyOfDifferentSizeCanBeSorted(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);
+            trie.Add(new []{2, 10, 232}, 10);
+            trie.Add(new []{3, 1}, 1);
+            
+
+            Assert.Equal(2, trie.Count);
+            var sortedEntries = trie.GetEntrySet().ToArray();
+
+            Assert.Equal(2, sortedEntries.Length);
+            
+            //Checking values
+            Assert.Equal(10, sortedEntries[0].Item2);
+            Assert.Equal(1, sortedEntries[1].Item2);
+
+            //Checking keys
+            Assert.Equal(2, sortedEntries[0].Item1[0]);
+            Assert.Equal(10, sortedEntries[0].Item1[1]);
+            Assert.Equal(232, sortedEntries[0].Item1[2]);
+
+            //Checking keys
+            Assert.Equal(3, sortedEntries[1].Item1[0]);
+            Assert.Equal(1, sortedEntries[1].Item1[1]);
+
+        } 
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void KeysCanBeSortedWhileReusingKeysContainerForAllItems(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);
+            trie.Add(5, 10);
+            trie.Add(2, 15);
+
+            Assert.Equal(2, trie.Count);
+            var entriesEnumerator = trie.GetEntrySet(true).GetEnumerator();
+            Assert.True(entriesEnumerator.MoveNext());
+            Assert.Equal(15, entriesEnumerator.Current.Item2);
+            Assert.Equal(1, entriesEnumerator.Current.Item1.Count);
+            Assert.Equal(2, entriesEnumerator.Current.Item1[0]);
+
+            Assert.True(entriesEnumerator.MoveNext());
+            Assert.Equal(10, entriesEnumerator.Current.Item2);
+            Assert.Equal(1, entriesEnumerator.Current.Item1.Count);
+            Assert.Equal(5, entriesEnumerator.Current.Item1[0]);
+
+            Assert.False(entriesEnumerator.MoveNext());
+
+        }
      }
+
+     
 
     public enum NodeContainerType
     {

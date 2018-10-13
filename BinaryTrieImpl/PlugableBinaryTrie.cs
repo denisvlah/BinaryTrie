@@ -170,8 +170,9 @@ namespace BinaryTrieImpl
 
         public int Count {get { return _count;}}
 
-        public IEnumerable<(List<int>, T)> GetEntrySet()
+        public IEnumerable<(List<int>, T)> GetEntrySet(bool reuseKeysList = false)
         {
+            var keysContainer = reuseKeysList ? new List<int>(_maxKeySize): null;
             var nodes = new List<NodeWrapper<T>>(_maxKeySize);
             var node = new NodeWrapper<T>(Node(0));            
 
@@ -195,18 +196,21 @@ namespace BinaryTrieImpl
                 
                     if (node.Node.HasValue)
                     {
-                        yield return (GetIntKey(nodes, node.Node.Key), node.Node.Value);
-                    }                        
+                        yield return (GetIntKey(nodes, node.Node.Key, keysContainer), node.Node.Value);
 
+                        if (reuseKeysList){
+                            keysContainer.Clear();
+                        }
+                    }
                 }
-
             }
-        }
+        }       
 
         public T GetValue(int[] keys, T defaultValue = default)
         {
             T result;
-            for(int i = 0; i<keys.Length - 1; i++){
+            for(int i = 0; i<keys.Length - 1; i++)
+            {
                 var hasValue = TryGetValue(keys[i], out result, false);              
             }
 
@@ -268,9 +272,9 @@ namespace BinaryTrieImpl
             return -1;
         }
 
-        private List<int> GetIntKey(List<NodeWrapper<T>> nodes, bool lastKey)
+        private List<int> GetIntKey(List<NodeWrapper<T>> nodes, bool lastKey, List<int> resultList = null)
         {
-            var resultList = new List<int>();
+            resultList = resultList ?? new List<int>(_maxKeySize);
             var index = 0;
             var bitVector = new BitVector32(0);
 
