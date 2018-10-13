@@ -23,6 +23,15 @@ namespace BinaryTrieImpl
 
         public MemoryMappedNodeContainer(string fileName, long? maxNodesCount = null)
         {
+            if (SizeHelper.IsPersistent(typeof(T)) == false)
+            {
+                throw new ArgumentException(
+                    string.Format(
+                        "The type {0} cannot be persistent because it contains reference fields."
+                        , typeof(T)
+                    )
+                );
+            }
             _offset = sizeof(int) * 2;
             _fileName = fileName;        
             _nodesSizeBytes = SizeHelper.SizeOf(typeof(TrieNode<T>));
@@ -151,7 +160,7 @@ namespace BinaryTrieImpl
         public long FileSizeBytes{get{return _fullSize;}}
     }
     
-    static class SizeHelper
+    public static class SizeHelper
     {
         private static Dictionary<Type, int> sizes = new Dictionary<Type, int>();
 
@@ -175,6 +184,47 @@ namespace BinaryTrieImpl
             il.Emit(OpCodes.Sizeof, type);
             il.Emit(OpCodes.Ret);
             return (int)dm.Invoke(null, null);
+        }
+
+        public static bool IsPersistent(Type t)
+        {
+            if (t.IsInterface)
+            {
+                return false;
+            }
+
+            if (t.IsClass)
+            {
+                return false;
+            }
+
+            if (t.IsPrimitive) 
+            {
+                return true;
+            }
+
+            foreach(var field  in t.GetFields())
+            {
+                if (field.IsStatic)
+                {
+                    continue;
+                }
+                
+                var fieldType = field.FieldType;
+
+                if (fieldType == t)
+                {
+                    continue;
+                }
+                var isPersistent = IsPersistent(fieldType);
+
+                if (isPersistent == false)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

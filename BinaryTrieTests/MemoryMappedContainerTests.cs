@@ -133,9 +133,27 @@ namespace BinaryTrieTests
             Assert.Equal(13, storedValue);
         }
 
+        [Fact]
+        public void StructContainer(){
+            Assert.False(SizeHelper.IsPersistent(typeof(string)));
+            Assert.False(SizeHelper.IsPersistent(typeof(StructWithRefField)));
+            Assert.True(SizeHelper.IsPersistent(typeof(int)));
+            Assert.True(SizeHelper.IsPersistent(typeof(DateTime)));
+            Assert.True(SizeHelper.IsPersistent(typeof(decimal)));
+            
+        }
+
         private string RName()
         {
             return "foo_" + Guid.NewGuid().ToString().Replace("-", "");
         }
     }
+
+    struct StructWithRefField
+    {
+        public int F1;
+        public string F2;
+    }
+
+    
 }
