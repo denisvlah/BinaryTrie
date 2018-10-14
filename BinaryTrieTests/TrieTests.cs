@@ -247,6 +247,32 @@ namespace BinaryTrieTests
             Assert.False(entriesEnumerator.MoveNext());
 
         }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        public void KeysWithSamePrefixAreSortedCorrectly(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);
+            trie.Add(new[]{1,2,3}, 5);
+            trie.Add(new[]{1,2}, 9);
+
+            var sortedKvp = trie.GetEntrySet().ToArray();
+            Assert.Equal(2, sortedKvp.Length);
+
+            Assert.Equal(9, sortedKvp[0].Item2);
+            Assert.Equal(2, sortedKvp[0].Item1.Count);
+            Assert.Equal(1, sortedKvp[0].Item1[0]);
+            Assert.Equal(2, sortedKvp[0].Item1[1]);
+
+            Assert.Equal(5, sortedKvp[1].Item2);
+            Assert.Equal(3, sortedKvp[1].Item1.Count);
+            Assert.Equal(1, sortedKvp[1].Item1[0]);
+            Assert.Equal(2, sortedKvp[1].Item1[1]);
+            Assert.Equal(3, sortedKvp[1].Item1[2]);
+
+
+        }
      }
 
      
