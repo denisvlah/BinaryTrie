@@ -20,7 +20,7 @@ namespace BinaryTrieImpl
             _data.Add(initialData);
 
         }
-        public ref TrieNode<T> AddNewNode()
+        public ref TrieNode<T> AddNewNode(out int index)
         {   
             var nodeContainer = _data[_data.Count -1];
 
@@ -31,8 +31,8 @@ namespace BinaryTrieImpl
 
             }         
 
-            ref var data = ref _data[_data.Count -1].AddNewNode();
-            data.CurrentIndex += (_data.Count-1) * _size;
+            ref var data = ref _data[_data.Count -1].AddNewNode(out index);
+            index += (_data.Count-1) * _size;
             return ref data;  
         }
 
@@ -68,7 +68,7 @@ namespace BinaryTrieImpl
             _data[0].InitFirstNode();
         }
 
-        public void ReassignNode(ref TrieNode<T> newNode)
+        public void ReassignNode(ref TrieNode<T> newNode, int index)
         {
             /* 
             var index = newNode.CurrentIndex;

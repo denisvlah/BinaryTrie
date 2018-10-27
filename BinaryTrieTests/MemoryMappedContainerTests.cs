@@ -33,19 +33,19 @@ namespace BinaryTrieTests
         [Fact]
         public void SetValueWorks()
         {
-            var node1 = c.AddNewNode();            
-            c.SetValue(node1.CurrentIndex, -10);
-            var sNode1 = c.Get(node1.CurrentIndex);
+            var node1 = c.AddNewNode(out var node1Index);            
+            c.SetValue(node1Index, -10);
+            var sNode1 = c.Get(node1Index);
             Assert.Equal(sNode1.Value, -10);
 
-            var node2 = c.AddNewNode();
+            var node2 = c.AddNewNode(out var node2Index);
             node2.Value = -100;
             node2.Node_0 = -10;
             node2.Node_1 = -10;
             var tmpNode = node2;
-            c.ReassignNode(ref tmpNode);
+            c.ReassignNode(ref tmpNode, node2Index);
 
-            var sNode2 = c.Get(node2.CurrentIndex);
+            var sNode2 = c.Get(node2Index);
             Assert.Equal(-100, sNode2.Value);
             Assert.Equal(-10, sNode2.Node_0);
             Assert.Equal(-10, sNode2.Node_1);
@@ -55,15 +55,15 @@ namespace BinaryTrieTests
         public void ValuesCountAndIndexCountCanBePersistedAndRestored()
         {
             c.InitFirstNode();
-            var node2  = c.AddNewNode();
+            var node2  = c.AddNewNode(out int node2Index);
             node2.HasValue = true;
             node2.Value = 100;
-            c.ReassignNode(ref node2);
+            c.ReassignNode(ref node2, node2Index);
 
-            var node3 = c.AddNewNode();
+            var node3 = c.AddNewNode(out var node3Index);
             node3.HasValue = true;
             node3.Value = 200;
-            c.ReassignNode(ref node3);
+            c.ReassignNode(ref node3, node3Index);
 
             c.IncrementValuesCount();
             c.IncrementValuesCount();
@@ -86,8 +86,8 @@ namespace BinaryTrieTests
             Assert.Equal(expectedValuesCount, actualValuesCount);
             Assert.Equal(expectedNodeIndex, actualNodeIndex);
 
-            var actualNode2 = restoredContainer.Get(node2.CurrentIndex);
-            var actualNode3 = restoredContainer.Get(node3.CurrentIndex);
+            var actualNode2 = restoredContainer.Get(node2Index);
+            var actualNode3 = restoredContainer.Get(node3Index);
 
             Assert.Equal(node2.HasValue, actualNode2.HasValue);
             Assert.Equal(node2.Value, actualNode2.Value);

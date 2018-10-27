@@ -7,8 +7,7 @@ namespace BinaryTrieImpl
         public bool Key;
 
         public T Value { get {return _value;} set { _value = value; HasValue = true; } }
-
-        public int CurrentIndex { get;  set; }
+        
         public bool IsTerminal()
         {
             return Node_0 == -1 && Node_1 == -1;
@@ -19,9 +18,8 @@ namespace BinaryTrieImpl
         public int Node_1;
         private T _value;
 
-        public TrieNode(int currentIndex, int i, int i1)
-        {
-            CurrentIndex = currentIndex;
+        public TrieNode(int i, int i1)
+        {            
             Node_0 = i;
             Node_1 = i1;
             _value = default;            

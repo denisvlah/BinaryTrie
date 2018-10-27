@@ -19,15 +19,14 @@ namespace BinaryTrieImpl
             _array = new TrieNode<T>[sizeValue];
         }
 
-        public ref TrieNode<T> AddNewNode()
+        public ref TrieNode<T> AddNewNode(out int index)
         {            
-            var index = _index;            
+            index = _index;            
             _index++;
             _array[index] = new TrieNode<T>();
             ref var node = ref _array[index];
             node.Node_0 = -1;
-            node.Node_1 = -1;
-            node.CurrentIndex = index;
+            node.Node_1 = -1;            
 
             return ref _array[index];
         }
@@ -45,16 +44,11 @@ namespace BinaryTrieImpl
         public void SetValue(int nodeIndex, T value)
         {
             _array[nodeIndex].Value = value;
-        }
-
-        public void ReassignNode(ref TrieNode<T> newNode)
-        {
-            //_array[newNode.CurrentIndex] = newNode;
-        }
+        }       
 
         public void InitFirstNode()
         {
-            AddNewNode();
+            AddNewNode(out _);
         }
 
         public void IncrementValuesCount()
@@ -72,9 +66,9 @@ namespace BinaryTrieImpl
             return _valuesCount;
         }
 
-        internal void ReassignNode(ref TrieNode<T> newNode, int localIndex)
+        public void ReassignNode(ref TrieNode<T> node, int nodeIndex)
         {
-            _array[localIndex] = newNode;
+
         }
 
         public void Dispose()

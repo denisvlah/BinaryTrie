@@ -43,20 +43,18 @@ namespace BinaryTrieImpl
 
             if (nextNodeIndex == -1)
             {
-                
-                ref var newNode = ref _nodes.AddNewNode();
-                node.AddIndex(bit, newNode.CurrentIndex);
+                int newNodeIndex;
+                ref var newNode = ref _nodes.AddNewNode(out newNodeIndex);                
+                node.AddIndex(bit, newNodeIndex);
                 newNode.Key = bit;                
-                _nodes.ReassignNode(ref node);
-                _nodes.ReassignNode(ref newNode);
+                _nodes.ReassignNode(ref node, nodeIndex);
+                _nodes.ReassignNode(ref newNode, newNodeIndex);
 
-                return newNode.CurrentIndex;
+                return newNodeIndex;
             }
             else
             {
-                ref var newNode = ref _nodes.Get(nextNodeIndex);
-
-                return newNode.CurrentIndex;
+                return nextNodeIndex;
             }
         }        
 
@@ -115,7 +113,7 @@ namespace BinaryTrieImpl
             {
                 var hasValue = foundNode.HasValue;
                 foundNode.RemoveValue();
-                _nodes.ReassignNode(ref foundNode);
+                _nodes.ReassignNode(ref foundNode, nodeIndex);
                 _lastNodeIndex = -1;
                 _nodes.DecrementValuesCount();                
                 return hasValue;

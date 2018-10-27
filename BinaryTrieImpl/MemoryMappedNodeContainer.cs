@@ -89,12 +89,13 @@ namespace BinaryTrieImpl
         }
 
         private TrieNode<T> _lastNode;
-        public ref TrieNode<T> AddNewNode()
+        public ref TrieNode<T> AddNewNode(out int index)
         {
-            _lastNode = new TrieNode<T>(_currentIndex, -1, -1);
-            ref var node = ref _lastNode;            
-            _accessor.Write(Offset(_currentIndex), ref node);
+            _lastNode = new TrieNode<T>(-1, -1);
+            ref var node = ref _lastNode;
+            index = _currentIndex;
             _currentIndex++;
+            _accessor.Write(Offset(index), ref node);            
             WriteCurrentIndex();
 
             return ref node;
@@ -117,12 +118,11 @@ namespace BinaryTrieImpl
         {
             ref var node = ref Get(nodeIndex);
             node.Value = value;
-            ReassignNode(ref node);
+            ReassignNode(ref node, nodeIndex);
         }
 
-        public void ReassignNode(ref TrieNode<T> newNode)
-        {
-            var index = newNode.CurrentIndex;
+        public void ReassignNode(ref TrieNode<T> newNode, int index)
+        {            
             _accessor.Write(Offset(index), ref newNode);
         }
 
@@ -135,7 +135,7 @@ namespace BinaryTrieImpl
         public void InitFirstNode()
         {
             if (_currentIndex == 0){
-                AddNewNode();
+                AddNewNode(out _);
             }
         }
 
