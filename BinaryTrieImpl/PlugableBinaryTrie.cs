@@ -135,13 +135,12 @@ namespace BinaryTrieImpl
             {
                 nodeIndex = _lastNodeIndex;
             }
-
-            TrieNode<T> node = default;            
+            
             for(int i=0; i<32; i++)
             {
                 var mask = _invertedMasks[i];                
                 var bit = bitVector[mask];
-                node = Node(nodeIndex);
+                ref var node = ref Node(nodeIndex);
                 var nextIndex = node.NextNodeIndex(bit);
                 if (nextIndex == -1) 
                 {                    
@@ -151,7 +150,7 @@ namespace BinaryTrieImpl
                 nodeIndex = nextIndex;
             }
 
-            node = Node(nodeIndex);
+            ref var foundNode = ref Node(nodeIndex);
 
             if (isLastElement)
             {
@@ -162,8 +161,8 @@ namespace BinaryTrieImpl
                 _lastNodeIndex = nodeIndex;
             }
 
-            result = node.Value;
-            return node.HasValue;
+            result = foundNode.Value;
+            return foundNode.HasValue;
         }
 
         public int Count {get { return _nodes.GetValuesCount();}}
