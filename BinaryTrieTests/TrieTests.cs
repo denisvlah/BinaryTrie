@@ -15,9 +15,13 @@ namespace BinaryTrieTests
             {
                 container = new ArrayBackedNodesContainer<int>(size);
             }
-            else
+            else if (t == NodeContainerType.MemoryMappedBacked)
             {
                 container = new MemoryMappedNodeContainer<int>(RName(), size); 
+            }
+            else
+            {
+                container = new GrowableArrayBackedNodeContainer<int>(100);
             }
             
             var trie = new PlugableBinaryTrie<int>(container);
@@ -33,6 +37,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void ItemsCanBeAddedAndRetrievedByKey(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -51,6 +56,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void ValueCanBeAddedByKey0(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -67,6 +73,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void ValueCanBeAddedByKeyOne(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -83,6 +90,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void ValueCanBeAddedByDoubleKey(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -111,6 +119,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void ValueCanRemoved(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -129,6 +138,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void KeyValuesCanBeSortedByKey(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 10000000);
@@ -164,6 +174,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void ComplexKeysCanBeSorted(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 100000);
@@ -196,6 +207,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void ComplexKeyOfDifferentSizeCanBeSorted(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 100000);
@@ -226,6 +238,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void KeysCanBeSortedWhileReusingKeysContainerForAllItems(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 100000);
@@ -251,6 +264,7 @@ namespace BinaryTrieTests
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
         public void KeysWithSamePrefixAreSortedCorrectly(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 100000);
@@ -281,6 +295,7 @@ namespace BinaryTrieTests
     {
         MemoryMappedBacked,
         ArrayBacked,
+        GrowableArrayBacked
         
     }
 }

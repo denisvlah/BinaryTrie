@@ -28,7 +28,6 @@ namespace BinaryTrieImpl
             {
                 var newNodeContainer = new ArrayBackedNodesContainer<T>(_size);
                 _data.Add(newNodeContainer);
-
             }         
 
             ref var data = ref _data[_data.Count -1].AddNewNode(out index);
