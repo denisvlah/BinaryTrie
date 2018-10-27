@@ -8,7 +8,7 @@ namespace BinaryTrieImpl
     public class ArrayWithRefsBackedBinaryTrie<T>
     {
         //TODO: implement thread safity and custom serialization
-        private readonly ArrayNodesContainer<T> _nodes = new ArrayNodesContainer<T>();
+        private readonly ArrayBackedNodesContainer<T> _nodes = new ArrayBackedNodesContainer<T>();
         private int _count = 0;
 
         private int _maxKeySize = 0;       

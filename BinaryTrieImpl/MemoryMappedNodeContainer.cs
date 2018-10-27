@@ -64,6 +64,10 @@ namespace BinaryTrieImpl
             _currentIndex = ReadCurrentIndex();
         }
 
+        private long Offset(int index)
+        {
+            return index*_nodesSizeBytes + _offset + 1;
+        }
         private int ReadCurrentIndex()
         {
             return _accessor.ReadInt32(sizeof(int) + 1);
@@ -89,17 +93,19 @@ namespace BinaryTrieImpl
         {
             _lastNode = new TrieNode<T>(_currentIndex, -1, -1);
             ref var node = ref _lastNode;            
-            _accessor.Write(_currentIndex*_nodesSizeBytes + _offset, ref node);
+            _accessor.Write(Offset(_currentIndex), ref node);
             _currentIndex++;
             WriteCurrentIndex();
 
             return ref node;
         }
 
+        private TrieNode<T> _lastNode2;
+
         public ref TrieNode<T> Get(int index)
         {
-            _accessor.Read(index*_nodesSizeBytes + _offset, out _lastNode);
-            return ref _lastNode;
+            _accessor.Read(Offset(index), out _lastNode2);
+            return ref _lastNode2;
         }
 
         public int Size()
@@ -117,7 +123,7 @@ namespace BinaryTrieImpl
         public void ReassignNode(ref TrieNode<T> newNode)
         {
             var index = newNode.CurrentIndex;
-            _accessor.Write(index*_nodesSizeBytes + _offset, ref newNode);
+            _accessor.Write(Offset(index), ref newNode);
         }
 
         public void Dispose()

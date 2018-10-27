@@ -38,7 +38,7 @@ namespace BinaryTrieImpl
         private int AddNewNode(int nodeIndex, ref BitVector32 bitVector, int mask)
         {
             var bit = bitVector[mask];
-            var node = Node(nodeIndex);
+            ref var node = ref Node(nodeIndex);
             var nextNodeIndex = node.NextNodeIndex(bit);            
 
             if (nextNodeIndex == -1)
@@ -96,13 +96,12 @@ namespace BinaryTrieImpl
             {
                 nodeIndex = _lastNodeIndex;
             }
-
-            TrieNode<T> node = default;            
+            
             for(var i=0; i<32; i++)
             {
                 var mask = _invertedMasks[i];
                 var bit = bitVector[mask];
-                node = Node(nodeIndex);
+                ref var node = ref Node(nodeIndex);
                 nodeIndex = node.NextNodeIndex(bit);
                 if (nodeIndex == -1)
                 {
@@ -110,13 +109,13 @@ namespace BinaryTrieImpl
                 }
             }
 
-            node = Node(nodeIndex);
+            ref var foundNode = ref Node(nodeIndex);
 
             if (isLastElement)
             {
-                var hasValue = node.HasValue;
-                node.RemoveValue();
-                _nodes.ReassignNode(ref node);
+                var hasValue = foundNode.HasValue;
+                foundNode.RemoveValue();
+                _nodes.ReassignNode(ref foundNode);
                 _lastNodeIndex = -1;
                 _nodes.DecrementValuesCount();                
                 return hasValue;
@@ -124,7 +123,7 @@ namespace BinaryTrieImpl
 
             _lastNodeIndex = nodeIndex;
 
-            return node.HasValue;
+            return foundNode.HasValue;
         }
 
         public bool TryGetValue(int keyBits, out T result, bool isLastElement = true)
@@ -169,7 +168,7 @@ namespace BinaryTrieImpl
 
         public int Count {get { return _nodes.GetValuesCount();}}
 
-        public IEnumerable<(List<int>, T)> GetEntrySet(bool reuseKeysList = false)
+        public IEnumerable<(IReadOnlyList<int>, T)> GetEntrySet(bool reuseKeysList = false)
         {
             var keysContainer = reuseKeysList ? new List<int>(_maxKeySize): null;
             var nodes = new List<NodeWrapper<T>>(_maxKeySize);
@@ -205,15 +204,15 @@ namespace BinaryTrieImpl
             }
         }       
 
-        public T GetValue(int[] keys, T defaultValue = default)
+        public T GetValue(IReadOnlyList<int> keys, T defaultValue = default)
         {
             T result;
-            for(int i = 0; i<keys.Length - 1; i++)
+            for(int i = 0; i<keys.Count - 1; i++)
             {
                 var hasValue = TryGetValue(keys[i], out result, false);              
             }
 
-            if (TryGetValue(keys[keys.Length - 1], out result))
+            if (TryGetValue(keys[keys.Count - 1], out result))
             {
                 return result;
             }
@@ -221,13 +220,13 @@ namespace BinaryTrieImpl
             return defaultValue;
         }
 
-        public void Add(int[] keys, T v2)
+        public void Add(IReadOnlyList<int> keys, T v2)
         {
-            for (int i =0; i< keys.Length - 1; i++){
+            for (int i =0; i< keys.Count - 1; i++){
                 Add(keys[i], v2, false);
             }
 
-            Add(keys[keys.Length -1], v2);
+            Add(keys[keys.Count -1], v2);
         }
 
         private void Push(List<NodeWrapper<T>> nodes, ref NodeWrapper<T> node)

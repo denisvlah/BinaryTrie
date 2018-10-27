@@ -1,6 +1,8 @@
+using System;
+
 namespace BinaryTrieImpl
 {
-    public class ArrayNodesContainer<T> : INodesContainer<T>
+    public class ArrayBackedNodesContainer<T> : INodesContainer<T>
     {
         //TODO: implement resizing when capacity reached.
         //TODO: implement thread safity
@@ -11,7 +13,7 @@ namespace BinaryTrieImpl
 
         private int _valuesCount = 0;
 
-        public ArrayNodesContainer(int? initialSize = null)
+        public ArrayBackedNodesContainer(int? initialSize = null)
         {
             var sizeValue = initialSize ?? 100000;
             _array = new TrieNode<T>[sizeValue];
@@ -47,7 +49,7 @@ namespace BinaryTrieImpl
 
         public void ReassignNode(ref TrieNode<T> newNode)
         {
-            _array[newNode.CurrentIndex] = newNode;
+            //_array[newNode.CurrentIndex] = newNode;
         }
 
         public void InitFirstNode()
@@ -68,6 +70,11 @@ namespace BinaryTrieImpl
         public int GetValuesCount()
         {
             return _valuesCount;
+        }
+
+        internal void ReassignNode(ref TrieNode<T> newNode, int localIndex)
+        {
+            _array[localIndex] = newNode;
         }
 
         public void Dispose()

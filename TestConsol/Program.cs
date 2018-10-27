@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace TestConsol
 {
@@ -9,6 +10,9 @@ namespace TestConsol
     {
         static void Main(string[] args)
         {
+            var list = new List<int>();
+            var array = new int[10];
+            
             using (var mmf = MemoryMappedFile.CreateFromFile("ImgA", FileMode.OpenOrCreate, null, 900000L))
             {
                 using (var accessor = mmf.CreateViewAccessor(0, 900000))

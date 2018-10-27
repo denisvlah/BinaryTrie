@@ -13,7 +13,7 @@ namespace BinaryTrieTests
             INodesContainer<int> container;
             if (t == NodeContainerType.ArrayBacked)
             {
-                container = new ArrayNodesContainer<int>(size);
+                container = new ArrayBackedNodesContainer<int>(size);
             }
             else
             {
@@ -279,7 +279,8 @@ namespace BinaryTrieTests
 
     public enum NodeContainerType
     {
+        MemoryMappedBacked,
         ArrayBacked,
-        MemoryMappedBacked
+        
     }
 }
