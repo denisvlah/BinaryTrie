@@ -1,12 +1,14 @@
 using System;
+using System.IO;
 using System.Linq;
 using BinaryTrieImpl;
 using Xunit;
 
 namespace BinaryTrieTests
 {
-    public class TrieTests
+    public class TrieTests: IDisposable
     {
+        PlugableBinaryTrie<int> trie;
         public PlugableBinaryTrie<int> GetTrie(NodeContainerType t, int? initialSize = null)
         {
             var size = initialSize ?? 90000;
@@ -17,27 +19,44 @@ namespace BinaryTrieTests
             }
             else if (t == NodeContainerType.MemoryMappedBacked)
             {
-                container = new MemoryMappedNodeContainer<int>(RName(), size); 
+                container = new MemoryMappedNodeContainer<int>("./gtrie.bin", size); 
             }
-            else
+            else if (t == NodeContainerType.GrowableArrayBacked)
             {
                 container = new GrowableArrayBackedNodeContainer<int>(100);
             }
+            else
+            {
+                container = new GrowableMemoryMappedNodeContainer<int>("./gtrie","t{0}.bin",100);
+
+            }
             
-            var trie = new PlugableBinaryTrie<int>(container);
+            trie = new PlugableBinaryTrie<int>(container);
 
             return trie;
-        }  
-        
-        private string RName()
-        {
-            return "foo_" + Guid.NewGuid().ToString().Replace("-", "");
         }
+
+        public void Dispose()
+        {
+            trie.Dispose();
+
+            if (trie is MemoryMappedNodeContainer<int>)
+            {
+                File.Delete("./gtrie.bin");
+            }
+
+            if (trie is GrowableMemoryMappedNodeContainer<int>)
+            {
+                Directory.Delete("./gtrie");
+            }            
+        }
+        
         
         [Theory]
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void ItemsCanBeAddedAndRetrievedByKey(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -57,6 +76,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void ValueCanBeAddedByKey0(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -74,6 +94,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void ValueCanBeAddedByKeyOne(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -91,6 +112,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void ValueCanBeAddedByDoubleKey(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -120,6 +142,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void ValueCanRemoved(NodeContainerType t)
         {
             var trie = GetTrie(t);
@@ -139,6 +162,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void KeyValuesCanBeSortedByKey(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 10000000);
@@ -175,6 +199,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void ComplexKeysCanBeSorted(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 100000);
@@ -208,6 +233,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void ComplexKeyOfDifferentSizeCanBeSorted(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 100000);
@@ -239,6 +265,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void KeysCanBeSortedWhileReusingKeysContainerForAllItems(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 100000);
@@ -265,6 +292,7 @@ namespace BinaryTrieTests
         [InlineData(NodeContainerType.ArrayBacked)]
         [InlineData(NodeContainerType.MemoryMappedBacked)]
         [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
         public void KeysWithSamePrefixAreSortedCorrectly(NodeContainerType t)
         {
             var trie = GetTrie(t, initialSize: 100000);
@@ -287,7 +315,9 @@ namespace BinaryTrieTests
 
 
         }
-     }
+
+       
+    }
 
      
 
@@ -295,7 +325,8 @@ namespace BinaryTrieTests
     {
         MemoryMappedBacked,
         ArrayBacked,
-        GrowableArrayBacked
+        GrowableArrayBacked,
+        GrowableMemoryMapped
         
     }
 }
