@@ -48,7 +48,7 @@ namespace BinaryTrieImpl
                 {
                     maxNodesCount = 100000 * 32;
                 }
-                _fullSize = maxNodesCount.Value * _nodesSizeBytes + _offset;
+                _fullSize = maxNodesCount.Value * _nodesSizeBytes + _offset+1;
             }
             
             _mmf = MemoryMappedFile.CreateFromFile(

@@ -9,10 +9,11 @@ namespace BinaryTrieTests
     public class TrieTests: IDisposable
     {
         PlugableBinaryTrie<int> trie;
+        INodesContainer<int> container;
         public PlugableBinaryTrie<int> GetTrie(NodeContainerType t, int? initialSize = null)
         {
             var size = initialSize ?? 90000;
-            INodesContainer<int> container;
+            
             if (t == NodeContainerType.ArrayBacked)
             {
                 container = new ArrayBackedNodesContainer<int>(size);
@@ -38,17 +39,23 @@ namespace BinaryTrieTests
 
         public void Dispose()
         {
-            trie.Dispose();
+            trie?.Dispose();
 
-            if (trie is MemoryMappedNodeContainer<int>)
+            if (container != null)
             {
-                File.Delete("./gtrie.bin");
+                if (container is MemoryMappedNodeContainer<int>)
+                {
+                    File.Delete("./gtrie.bin");
+                }
+
+                if (container is GrowableMemoryMappedNodeContainer<int>)
+                {
+                    Directory.Delete("./gtrie", true);
+                }
+
             }
 
-            if (trie is GrowableMemoryMappedNodeContainer<int>)
-            {
-                Directory.Delete("./gtrie");
-            }            
+                        
         }
         
         

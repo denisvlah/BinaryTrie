@@ -14,6 +14,7 @@ namespace BinaryTrieImpl
         {
             basePath = basePath ?? ".";
             fileTemplate = fileTemplate ?? "data_{0}.bin";
+            _size = size;
 
             if (string.IsNullOrWhiteSpace(basePath))
             {
