@@ -10,7 +10,7 @@ namespace BinaryTrieImpl
         
         public bool IsTerminal()
         {
-            return Node_0 == -1 && Node_1 == -1;
+            return Node_0 == 0 && Node_1 == 0;
         }
        
         public bool HasValue;
@@ -60,7 +60,7 @@ namespace BinaryTrieImpl
         {
             if (preferLeft)
             {
-                if (Node_0 != -1)
+                if (Node_0 != 0)
                 {
                     return Node_0;
                 }
@@ -69,7 +69,7 @@ namespace BinaryTrieImpl
             }
             else
             {
-                if (Node_1 != -1)
+                if (Node_1 != 0)
                 {
                     return Node_1;
                 }

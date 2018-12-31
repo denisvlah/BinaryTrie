@@ -91,7 +91,7 @@ namespace BinaryTrieImpl
         private TrieNode<T> _lastNode;
         public ref TrieNode<T> AddNewNode(out int index)
         {
-            _lastNode = new TrieNode<T>(-1, -1);
+            _lastNode = new TrieNode<T>(0, 0);
             ref var node = ref _lastNode;
             index = _currentIndex;
             _currentIndex++;

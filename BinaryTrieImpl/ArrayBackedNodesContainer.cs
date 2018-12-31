@@ -25,8 +25,8 @@ namespace BinaryTrieImpl
             _index++;
             _array[index] = new TrieNode<T>();
             ref var node = ref _array[index];
-            node.Node_0 = -1;
-            node.Node_1 = -1;            
+            node.Node_0 = 0;
+            node.Node_1 = 0;            
 
             return ref _array[index];
         }

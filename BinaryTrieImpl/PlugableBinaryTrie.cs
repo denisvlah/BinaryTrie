@@ -27,7 +27,7 @@ namespace BinaryTrieImpl
         }
 
         
-        private int _lastNodeIndex = -1;
+        private int _lastNodeIndex = 0;
         private int _currentKeySize = 1;
 
         private ref TrieNode<T> Node(int index)
@@ -41,7 +41,7 @@ namespace BinaryTrieImpl
             ref var node = ref Node(nodeIndex);
             var nextNodeIndex = node.NextNodeIndex(bit);            
 
-            if (nextNodeIndex == -1)
+            if (nextNodeIndex == 0)
             {
                 int newNodeIndex;
                 ref var newNode = ref _nodes.AddNewNode(out newNodeIndex);                
@@ -61,7 +61,7 @@ namespace BinaryTrieImpl
         public void Add(int key, T value, bool isLastElement = true)
         {
             var nodeIndex = 0;
-            if (_lastNodeIndex != -1)
+            if (_lastNodeIndex != 0)
             {
                 nodeIndex = _lastNodeIndex;
             }
@@ -74,7 +74,7 @@ namespace BinaryTrieImpl
 
             if (isLastElement)
             {
-                _lastNodeIndex = -1;
+                _lastNodeIndex = 0;
                 _nodes.SetValue(nodeIndex, value);                
                 _nodes.IncrementValuesCount();
                 _maxKeySize = _currentKeySize > _maxKeySize ? _currentKeySize : _maxKeySize;                
@@ -90,7 +90,7 @@ namespace BinaryTrieImpl
         {
             var bitVector = new BitVector32(key);
             var nodeIndex = 0;
-            if (_lastNodeIndex != -1)
+            if (_lastNodeIndex != 0)
             {
                 nodeIndex = _lastNodeIndex;
             }
@@ -100,11 +100,11 @@ namespace BinaryTrieImpl
                 var mask = _invertedMasks[i];
                 var bit = bitVector[mask];
                 ref var node = ref Node(nodeIndex);
-                nodeIndex = node.NextNodeIndex(bit);
-                if (nodeIndex == -1)
-                {
-                    return false;
-                }
+                nodeIndex = node.NextNodeIndex(bit);                
+            }
+            if (nodeIndex == 0)
+            {
+                return false;
             }
 
             ref var foundNode = ref Node(nodeIndex);
@@ -114,7 +114,7 @@ namespace BinaryTrieImpl
                 var hasValue = foundNode.HasValue;
                 foundNode.RemoveValue();
                 _nodes.ReassignNode(ref foundNode, nodeIndex);
-                _lastNodeIndex = -1;
+                _lastNodeIndex = 0;
                 _nodes.DecrementValuesCount();                
                 return hasValue;
             }
@@ -129,10 +129,10 @@ namespace BinaryTrieImpl
             var bitVector = new BitVector32(keyBits);
             result = default(T);
             var nodeIndex = 0;
-            if (_lastNodeIndex != -1)
+            if (_lastNodeIndex != 0)
             {
                 nodeIndex = _lastNodeIndex;
-            }
+            }            
             
             for(int i=0; i<32; i++)
             {
@@ -140,19 +140,21 @@ namespace BinaryTrieImpl
                 var bit = bitVector[mask];
                 ref var node = ref Node(nodeIndex);
                 var nextIndex = node.NextNodeIndex(bit);
-                if (nextIndex == -1) 
-                {                    
-                    return false;
-                }
+                
 
                 nodeIndex = nextIndex;
+            }
+
+            if (nodeIndex == 0) 
+            {                    
+                return false;
             }
 
             ref var foundNode = ref Node(nodeIndex);
 
             if (isLastElement)
             {
-                _lastNodeIndex = -1;
+                _lastNodeIndex = 0;
             }
             else
             {
@@ -244,7 +246,7 @@ namespace BinaryTrieImpl
             if (node.LeftVisited == false)
             {                
                 node.LeftVisited = true;
-                if (node.Node.Node_0 != -1)
+                if (node.Node.Node_0 != 0)
                 {
                     return node.Node.Node_0;
                 }
@@ -256,7 +258,7 @@ namespace BinaryTrieImpl
             if (node.RightVisited == false)
             {
                 node.RightVisited = true;
-                if (node.Node.Node_1 != -1)
+                if (node.Node.Node_1 != 0)
                 {
                     return node.Node.Node_1;
                 }
@@ -264,7 +266,7 @@ namespace BinaryTrieImpl
                 return node.Node.Node_0;
             }
 
-            return -1;
+            return 0;
         }
 
         private List<int> GetIntKey(List<NodeWrapper<T>> nodes, bool lastKey, List<int> resultList = null)
@@ -318,8 +320,8 @@ namespace BinaryTrieImpl
             return 
                 Node.IsTerminal() || 
                 (LeftVisited && RightVisited) ||
-                (LeftVisited && Node.Node_1 == -1) ||
-                (RightVisited && Node.Node_0 == -1)
+                (LeftVisited && Node.Node_1 == 0) ||
+                (RightVisited && Node.Node_0 == 0)
                 ;
         }
 
