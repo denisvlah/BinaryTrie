@@ -2,7 +2,7 @@ namespace BinaryTrieImpl
 {
     public class GrowableArrayBackedNodeContainer<T> : BaseGrowableNodeContainer<T, ArrayBackedNodesContainer<T>>
     {
-        public GrowableArrayBackedNodeContainer(int? size = null)
+        public GrowableArrayBackedNodeContainer(int? size = null, bool useArrayPool = false)
         {
             if (size.HasValue == false)
             {
@@ -11,7 +11,7 @@ namespace BinaryTrieImpl
             _size = size.Value;
 
 
-            var initialData = new ArrayBackedNodesContainer<T>(_size);
+            var initialData = new ArrayBackedNodesContainer<T>(_size, useArrayPool);
             _data.Add(initialData);
 
         }

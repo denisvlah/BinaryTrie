@@ -9,12 +9,19 @@ namespace BinaryTrieImpl
         private int _index = 0;
 
         private int _valuesCount = 0;
+        private bool _useArrayPool;
 
-        public ArrayBackedNodesContainer(int? initialSize = null)
+        public ArrayBackedNodesContainer(int? initialSize = null, bool useArryPool = false)
         {
+            _useArrayPool = useArryPool;
             var sizeValue = initialSize ?? 100000;
-            
-            _array = System.Buffers.ArrayPool<TrieNode<T>>.Shared.Rent(sizeValue);
+
+            if (useArryPool){
+                _array = System.Buffers.ArrayPool<TrieNode<T>>.Shared.Rent(sizeValue);
+            }
+            else {
+                _array =  new TrieNode<T>[sizeValue];
+            }
         }
 
         public ref TrieNode<T> AddNewNode(out int index)
@@ -71,7 +78,9 @@ namespace BinaryTrieImpl
 
         public void Dispose()
         {
-            System.Buffers.ArrayPool<TrieNode<T>>.Shared.Return(_array);            
+            if (_useArrayPool){
+                System.Buffers.ArrayPool<TrieNode<T>>.Shared.Return(_array);            
+            }            
         }
     }
 }
