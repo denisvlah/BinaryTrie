@@ -323,6 +323,149 @@ namespace BinaryTrieTests
 
         }
 
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
+        public void UserFunctionCanBeInvokedOnExistingKeyComplexKey(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);
+            trie.Add(new[]{1,2,3}, 5);
+
+            var isFunctionInvoked = false;
+            
+            trie.DoWithValue(new []{1,2,3}, (hasValue, currentValue)=>{
+                isFunctionInvoked = true;
+                Assert.True(hasValue);
+                return currentValue * 2;
+            });
+
+            Assert.True(isFunctionInvoked);
+
+            var newValue = trie.GetValue(new []{ 1,2,3});
+            Assert.Equal(10, newValue);
+            
+        }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
+        public void UserFunctionCanBeInvokedOnExistingKeySimpleKey(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);
+            trie.Add(3, 5);
+
+            var isFunctionInvoked = false;
+            
+            trie.DoWithValue(3, (hasValue, currentValue)=>{
+                isFunctionInvoked = true;
+                Assert.True(hasValue);
+                return currentValue * 2;
+            });
+
+            Assert.True(isFunctionInvoked);
+
+            var newValue = trie.GetValue(3);
+            Assert.Equal(10, newValue);
+            
+        }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
+        public void UserFunctionCanBeInvokedOnNotExistingComplexKeyAndNotAdeed(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);           
+
+            var isFunctionInvoked = false;
+            
+            trie.DoWithValue(new []{1,2,3}, (hasValue, currentValue)=>{
+                isFunctionInvoked = true;
+                Assert.False(hasValue);
+                return 1000;
+            }, false);
+
+            Assert.True(isFunctionInvoked);
+
+            var newValue = trie.GetValue(new []{ 1,2,3}, -10);
+            Assert.Equal(-10, newValue);            
+        }
+
+        
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
+        public void UserFunctionCanBeInvokedOnNotExistingSimpleKeyAndNotAdeed(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);           
+
+            var isFunctionInvoked = false;
+            
+            trie.DoWithValue(3, (hasValue, currentValue)=>{
+                isFunctionInvoked = true;
+                Assert.False(hasValue);
+                return 1000;
+            }, false);
+
+            Assert.True(isFunctionInvoked);
+
+            var newValue = trie.GetValue(3, -10);
+            Assert.Equal(-10, newValue);            
+        }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
+        public void UserFunctionCanBeInvokedOnNotExistingComplexKeyAndAdeed(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);           
+
+            var isFunctionInvoked = false;
+            
+            trie.DoWithValue(new []{1,2,3}, (hasValue, currentValue)=>{
+                isFunctionInvoked = true;
+                Assert.False(hasValue);
+                return 1000;
+            });
+
+            Assert.True(isFunctionInvoked);
+
+            var newValue = trie.GetValue(new []{ 1,2,3}, -10);
+            Assert.Equal(1000, newValue);            
+        }
+
+        [Theory]
+        [InlineData(NodeContainerType.ArrayBacked)]
+        [InlineData(NodeContainerType.MemoryMappedBacked)]
+        [InlineData(NodeContainerType.GrowableArrayBacked)]
+        [InlineData(NodeContainerType.GrowableMemoryMapped)]
+        public void UserFunctionCanBeInvokedOnNotExistingSimpleKeyAndAdeed(NodeContainerType t)
+        {
+            var trie = GetTrie(t, initialSize: 100000);           
+
+            var isFunctionInvoked = false;
+            
+            trie.DoWithValue(3, (hasValue, currentValue)=>{
+                isFunctionInvoked = true;
+                Assert.False(hasValue);
+                return 1000;
+            });
+
+            Assert.True(isFunctionInvoked);
+
+            var newValue = trie.GetValue(3, -10);
+            Assert.Equal(1000, newValue);            
+        }
+
        
     }
 

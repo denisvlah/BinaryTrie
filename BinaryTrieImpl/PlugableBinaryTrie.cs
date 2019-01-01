@@ -124,10 +124,9 @@ namespace BinaryTrieImpl
             return foundNode.HasValue;
         }
 
-        public bool TryGetValue(int keyBits, out T result, bool isLastElement = true)
+        private int TryGetNode(int keyBits, bool isLastElement = true)
         {
-            var bitVector = new BitVector32(keyBits);
-            result = default(T);
+            var bitVector = new BitVector32(keyBits);            
             var nodeIndex = 0;
             if (_lastNodeIndex != 0)
             {
@@ -140,30 +139,34 @@ namespace BinaryTrieImpl
                 var bit = bitVector[mask];
                 ref var node = ref Node(nodeIndex);
                 var nextIndex = node.NextNodeIndex(bit);
-                
-
                 nodeIndex = nextIndex;
             }
 
-            if (nodeIndex == 0) 
-            {                    
+            if (isLastElement == false){
+                _lastNodeIndex = nodeIndex;
+            }
+            else {
+                _lastNodeIndex = 0;
+            }          
+
+                        
+            return nodeIndex;
+        }
+
+        public bool TryGetValue(int keyBits, out T result, bool isLastElement = true)
+        {   
+            var nodeIndex = TryGetNode(keyBits, isLastElement);
+
+            if (nodeIndex == 0){
+                result = default;
                 return false;
             }
 
-            ref var foundNode = ref Node(nodeIndex);
+            ref var node = ref Node(nodeIndex);
 
-            if (isLastElement)
-            {
-                _lastNodeIndex = 0;
-            }
-            else
-            {
-                _lastNodeIndex = nodeIndex;
-            }
-
-            result = foundNode.Value;
-            return foundNode.HasValue;
-        }
+            result = node.Value;
+            return node.HasValue || (!isLastElement);
+        }        
 
         public int Count {get { return _nodes.GetValuesCount();}}
 
@@ -208,7 +211,10 @@ namespace BinaryTrieImpl
             T result;
             for(int i = 0; i<keys.Count - 1; i++)
             {
-                var hasValue = TryGetValue(keys[i], out result, false);              
+                var hasValue = TryGetValue(keys[i], out result, false);
+                if (!hasValue){
+                    return defaultValue;
+                }              
             }
 
             if (TryGetValue(keys[keys.Count - 1], out result))
@@ -217,6 +223,61 @@ namespace BinaryTrieImpl
             }
 
             return defaultValue;
+        }
+
+        public T GetValue(int key, T defaultValue = default)
+        {
+            T result;           
+
+            if (TryGetValue(key, out result))
+            {
+                return result;
+            }
+
+            return defaultValue;
+        }
+
+        public void DoWithValue(IReadOnlyList<int> keys, Func<bool, T, T> newValueFunc, bool addValueIfNotExist = true){
+            
+            for(int i = 0; i<keys.Count - 1; i++)
+            {
+                var nodeIndex = TryGetNode(keys[i], false);
+                if (nodeIndex == 0){
+                    var newValue = newValueFunc(false, default);
+                    if (addValueIfNotExist){
+                        Add(keys, newValue);
+                    }
+                    return;
+                }              
+            }
+
+            var lastNodeIndex = TryGetNode(keys[keys.Count - 1], true);
+            ref var node = ref Node(lastNodeIndex);
+            var newComputedValue = newValueFunc(node.HasValue, node.Value);
+
+            if (node.HasValue == false && addValueIfNotExist){
+                Add(keys, newComputedValue);
+            }
+            else if (node.HasValue){
+                node.Value = newComputedValue;
+                _nodes.ReassignNode(ref node, lastNodeIndex);
+            }
+            
+        }
+
+        public void DoWithValue(int key, Func<bool, T, T> newValueFunc, bool addValueIfNotExist = true){
+
+            var lastNodeIndex = TryGetNode(key, true);
+            ref var node = ref Node(lastNodeIndex);
+            var newComputedValue = newValueFunc(node.HasValue, node.Value);
+
+            if (node.HasValue == false && addValueIfNotExist){
+                Add(key, newComputedValue);
+            }
+            else if (node.HasValue){
+                node.Value = newComputedValue;
+                _nodes.ReassignNode(ref node, lastNodeIndex);
+            }            
         }
 
         public void Add(IReadOnlyList<int> keys, T v2)
