@@ -4,9 +4,6 @@ namespace BinaryTrieImpl
 {
     public class ArrayBackedNodesContainer<T> : INodesContainer<T>
     {
-        //TODO: implement resizing when capacity reached.
-        //TODO: implement thread safity
-        //TODO: implement custom serialization/deserialization
         private TrieNode<T>[] _array;
 
         private int _index = 0;
@@ -16,7 +13,8 @@ namespace BinaryTrieImpl
         public ArrayBackedNodesContainer(int? initialSize = null)
         {
             var sizeValue = initialSize ?? 100000;
-            _array = new TrieNode<T>[sizeValue];
+            
+            _array = System.Buffers.ArrayPool<TrieNode<T>>.Shared.Rent(sizeValue);
         }
 
         public ref TrieNode<T> AddNewNode(out int index)
@@ -72,7 +70,8 @@ namespace BinaryTrieImpl
         }
 
         public void Dispose()
-        {            
+        {
+            System.Buffers.ArrayPool<TrieNode<T>>.Shared.Return(_array);            
         }
     }
 }
