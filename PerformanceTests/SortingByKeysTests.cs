@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 namespace BinaryTrie.PerformanceTests{
     public class SortingByKeysTests {
         private ITestOutputHelper output;
-        private readonly int TotalKeys = 90000000;
+        private readonly int TotalKeys = 5000000;
 
         public SortingByKeysTests(ITestOutputHelper output)
         {

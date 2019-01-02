@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BinaryTrieImpl;
 using Xunit;
@@ -6,7 +7,7 @@ using Xunit.Abstractions;
 namespace BinaryTrie.PerformanceTests{
     public class FillAndRetrieveByIntKeyTests {
         private ITestOutputHelper output;
-        private readonly int TotalKeys = 90000000;
+        private readonly int TotalKeys = 5000000;
 
         public FillAndRetrieveByIntKeyTests(ITestOutputHelper output)
         {
@@ -39,7 +40,7 @@ namespace BinaryTrie.PerformanceTests{
             object f1(){
                 var dict = new SortedDictionary<int,int>();
 
-                for (int i=0; i<=TotalKeys; i--){
+                for (int i=0; i<=TotalKeys; i++){
                     dict[i] = i;
                 }
 
@@ -58,7 +59,8 @@ namespace BinaryTrie.PerformanceTests{
         [Fact]
         public void UsingArrayBackedGrowableTrie(){
             object f1(){
-                var container = new GrowableArrayBackedNodeContainer<int>();
+                
+                var container = new GrowableArrayBackedNodeContainer<int>(10000000, true);
                 var trie = new PlugableBinaryTrie<int>(container);
 
                 for (int i=TotalKeys; i>=0; i--){
@@ -83,7 +85,7 @@ namespace BinaryTrie.PerformanceTests{
                 var container = new GrowableArrayBackedNodeContainer<int>();
                 var trie = new PlugableBinaryTrie<int>(container);
 
-                for (int i=0; i<=TotalKeys; i--){
+                for (int i=0; i<=TotalKeys; i++){
                     trie.Add(i, i);
                 }
 
@@ -99,8 +101,10 @@ namespace BinaryTrie.PerformanceTests{
             this.output.WriteLine(execution.ToString());            
         }
 
-        [Fact]
-        public void UsingArrayBackedGrowableMemoryMapedTrie(){
+        /* 
+
+        [Fact(Skip="Memory mapped containers are slow for now")]
+        public void UsingGrowableMemoryMapedTrie(){
             object f1(){
                 var container = new GrowableMemoryMappedNodeContainer<int>();
                 var trie = new PlugableBinaryTrie<int>(container);
@@ -121,13 +125,13 @@ namespace BinaryTrie.PerformanceTests{
             this.output.WriteLine(execution.ToString());            
         }
 
-        [Fact]
-        public void UsingArrayBackedGrowableMemoryMapedTrieWithSortedInput(){
+        [Fact(Skip="Memory mapped containers are slow for now")]
+        public void UsingGrowableMemoryMapedTrieWithSortedInput(){
             object f1(){
                 var container = new GrowableMemoryMappedNodeContainer<int>();
                 var trie = new PlugableBinaryTrie<int>(container);
 
-                for (int i=0; i<=TotalKeys; i--){
+                for (int i=0; i<=TotalKeys; i++){
                     trie.Add(i, i);
                 }
 
@@ -142,6 +146,7 @@ namespace BinaryTrie.PerformanceTests{
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
         }
+        */
 
         [Fact]
         public void UsingDictionaryWithoutCapacity(){

@@ -17,8 +17,8 @@ namespace BinaryTrieTests
             
             Assert.Equal(true, actualNode.HasValue);
             Assert.Equal(999, actualNode.Value);            
-            Assert.Equal(-1, actualNode.Node_0);
-            Assert.Equal(-1, actualNode.Node_1);
+            Assert.Equal(0, actualNode.Node_0);
+            Assert.Equal(0, actualNode.Node_1);
         } 
     }
 }

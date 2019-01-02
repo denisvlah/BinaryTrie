@@ -9,15 +9,24 @@ namespace BinaryTrie.PerformanceTests{
         private static ThreadLocal<object> _container = new ThreadLocal<object>();
 
         public static PerfData Run(Func<object> a){
+            var testCaseName = GetTestCaseName();
+            Console.Write($"[{testCaseName}]: ");
             _container.Value = null;;
             
             GC.Collect();
             
             var bytesStart = GC.GetTotalMemory(true);
+            var gc0CollectionsStart = GC.CollectionCount(0);
+            var gc1CollectionsStart = GC.CollectionCount(1);
+            var gc2CollectionsStart = GC.CollectionCount(2);
             
             var stopwatch = Stopwatch.StartNew();
             _container.Value = a();
             stopwatch.Stop();
+
+            var gc0CollectionsEnd = GC.CollectionCount(0);
+            var gc1CollectionsEnd = GC.CollectionCount(1);
+            var gc2CollectionsEnd = GC.CollectionCount(2);
             
             var bytesEnd = GC.GetTotalMemory(false);
             
@@ -29,14 +38,18 @@ namespace BinaryTrie.PerformanceTests{
             var containerBytes = bytesClean - bytesStart;
             var ticks = stopwatch.Elapsed.Ticks;
 
-            var perfData =  new PerfData(ticks, bytesConsumed, containerBytes);            
+            var gc0 = gc0CollectionsEnd - gc0CollectionsStart;
+            var gc1 = gc1CollectionsEnd - gc1CollectionsStart; 
+            var gc2 = gc2CollectionsEnd - gc2CollectionsStart;
+
+            var perfData =  new PerfData(ticks, bytesConsumed, containerBytes, gc0, gc1, gc2);            
             
-            H.PrintStatistics(perfData);
+            Console.WriteLine(perfData.ToString());
 
             return perfData;
         }
 
-        private static void PrintStatistics(PerfData data){                        
+        private static string GetTestCaseName(){                        
             // Get call stack
             StackTrace stackTrace = new StackTrace();
 
@@ -46,7 +59,7 @@ namespace BinaryTrie.PerformanceTests{
             // Get calling method name
             var testCaseName = fullTypeName + "." + method.Name + "()";
 
-            Console.WriteLine($"[{testCaseName}]: {data.ToString()}");
+            return testCaseName;
         }
     }
 
@@ -54,16 +67,22 @@ namespace BinaryTrie.PerformanceTests{
 
         public PerfData(){}
 
-        public PerfData(long executionTimeTicks, long memoryBytes, long containerBytes)
+        public PerfData(long executionTimeTicks, long memoryBytes, long containerBytes, int gc0, int gc1, int gc2)
         {
             ExecutionTimeTicks = executionTimeTicks;
             ConsumedMemoryBytes = memoryBytes;
             ContainerBytes = containerBytes;
+            Gc0 = gc0;
+            Gc1 = gc1;
+            Gc2 = gc2;
         }
 
         public long ExecutionTimeTicks { get;  }
         public long ConsumedMemoryBytes { get; }
         public long ContainerBytes { get; }
+        public int Gc0 { get; }
+        public int Gc1 { get; }
+        public int Gc2 { get; }
 
         public TimeSpan Time(){
             return TimeSpan.FromTicks(ExecutionTimeTicks);
@@ -78,7 +97,7 @@ namespace BinaryTrie.PerformanceTests{
         }
 
         public override string ToString(){
-            return $"Time: {Time().TotalSeconds}s; RAM: {RamMegabytes()}Mb; Final_RAM: {ContainerMegabytes()}Mb";
+            return $"Time: {Time().TotalSeconds}s; RAM: {RamMegabytes()}Mb; Final_RAM: {ContainerMegabytes()}Mb; Gc0: {Gc0}; Gc1: {Gc1}; Gc2: {Gc2}";
         }
     }
 
