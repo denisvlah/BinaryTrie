@@ -46,6 +46,11 @@ namespace BinaryTrie.PerformanceTests{
             
             Console.WriteLine(perfData.ToString());
 
+            var disp = _container.Value as IDisposable;
+            if (disp != null){
+                disp.Dispose();
+            }
+
             return perfData;
         }
 

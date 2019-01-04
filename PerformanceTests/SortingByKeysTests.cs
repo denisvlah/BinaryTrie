@@ -8,11 +8,11 @@ using Xunit.Abstractions;
 namespace BinaryTrie.PerformanceTests{
     public class SortingByKeysTests {
         private ITestOutputHelper output;
-        private readonly int TotalKeys = 5000000;
+        private int TotalKeys = 5000000;
 
         public SortingByKeysTests(ITestOutputHelper output)
         {
-            this.output = output;
+            this.output = output;            
         }
 
         [Fact]
@@ -35,6 +35,11 @@ namespace BinaryTrie.PerformanceTests{
 
                 return dict;
             }
+
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            f1();
+            TotalKeys = oldCount;
 
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
@@ -64,6 +69,12 @@ namespace BinaryTrie.PerformanceTests{
                 return trie;
             }
 
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            var disposable = f1() as IDisposable;
+            disposable.Dispose();
+            TotalKeys = oldCount;
+
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
         }
@@ -91,6 +102,11 @@ namespace BinaryTrie.PerformanceTests{
                 return dict;
             }
 
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            f1();
+            TotalKeys = oldCount;
+
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
         }
@@ -117,6 +133,11 @@ namespace BinaryTrie.PerformanceTests{
 
                 return dict;
             }
+
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            f1();
+            TotalKeys = oldCount;
 
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            

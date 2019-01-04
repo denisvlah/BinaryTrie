@@ -6,8 +6,10 @@ using Xunit.Abstractions;
 
 namespace BinaryTrie.PerformanceTests{
     public class FillAndRetrieveByIntKeyTests {
+
+        //TODO: implement warmap
         private ITestOutputHelper output;
-        private readonly int TotalKeys = 5000000;
+        private int TotalKeys = 5000000;
 
         public FillAndRetrieveByIntKeyTests(ITestOutputHelper output)
         {
@@ -30,6 +32,11 @@ namespace BinaryTrie.PerformanceTests{
 
                 return dict;
             }
+            
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            f1();
+            TotalKeys = oldCount;
 
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
@@ -51,6 +58,10 @@ namespace BinaryTrie.PerformanceTests{
 
                 return dict;
             }
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            f1();
+            TotalKeys = oldCount;
 
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
@@ -75,6 +86,12 @@ namespace BinaryTrie.PerformanceTests{
                 return trie;
             }
 
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            var disp = f1() as IDisposable;
+            disp.Dispose();
+            TotalKeys = oldCount;
+
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
         }
@@ -96,6 +113,11 @@ namespace BinaryTrie.PerformanceTests{
 
                 return trie;
             }
+
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            f1();
+            TotalKeys = oldCount;
 
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
@@ -165,6 +187,11 @@ namespace BinaryTrie.PerformanceTests{
                 return dict;
             }
 
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            f1();
+            TotalKeys = oldCount;
+
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
         }
@@ -185,6 +212,11 @@ namespace BinaryTrie.PerformanceTests{
 
                 return dict;
             }
+
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            f1();
+            TotalKeys = oldCount;
 
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
