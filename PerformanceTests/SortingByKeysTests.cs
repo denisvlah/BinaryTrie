@@ -46,9 +46,10 @@ namespace BinaryTrie.PerformanceTests{
         }
 
         [Fact]
-        public void UsingIntKeysOnArrayBackedGrowableTrie(){
+        public void UsingIntKeysOnArrayBackedGrowableTrie(){            
             object f1(){
-                var container = new GrowableArrayBackedNodeContainer<int>();
+                var container = new GrowableArrayBackedNodeContainer<int>(5000000, true);
+                
                 var trie = new PlugableBinaryTrie<int>(container);
 
                 for (int i=TotalKeys; i>=0; i--){
@@ -58,13 +59,17 @@ namespace BinaryTrie.PerformanceTests{
                 Assert.Equal(TotalKeys + 1, trie.Count);
 
                 var lastKey = -1;
+                var allOk = true;
                 foreach(var kvp in trie.GetEntrySet(reuseKeysList: true)){
                     var key = kvp.Item1[0];
                     var value = kvp.Item2;
-                    Assert.Equal(key, value);
-                    Assert.True(key >= lastKey);
+
+                    allOk = allOk && key == value;
+                    allOk = allOk && key >= lastKey;                                        
                     lastKey = key;
                 }
+
+                Assert.True(allOk);
 
                 return trie;
             }
@@ -73,10 +78,10 @@ namespace BinaryTrie.PerformanceTests{
             TotalKeys = 100000;
             var disposable = f1() as IDisposable;
             disposable.Dispose();
-            TotalKeys = oldCount;
-
+            TotalKeys = oldCount;            
             var execution = H.Run(f1);
-            this.output.WriteLine(execution.ToString());            
+            this.output.WriteLine(execution.ToString());           
+            
         }
 
         [Fact]
@@ -95,14 +100,18 @@ namespace BinaryTrie.PerformanceTests{
                 Assert.Equal(TotalKeys + 1, trie.Count);
 
                 var lastKey = -1;
+                var allOk = true;
                 foreach (var kvp in trie.GetEntrySet(reuseKeysList: true))
                 {
                     var key = kvp.Item1[0];
                     var value = kvp.Item2;
-                    Assert.Equal(key, value);
-                    Assert.True(key >= lastKey);
+                    allOk = allOk && key == value;                    
+                    allOk = allOk && key >= lastKey;                    
+                    Assert.True(allOk);
                     lastKey = key;
                 }
+
+                Assert.True(allOk);
 
                 return trie;
             }
@@ -131,11 +140,13 @@ namespace BinaryTrie.PerformanceTests{
                 var sortedKeys = dict.OrderBy(x=>x.Key);
 
                 var lastKey = -1;
+                var allOk = true;
                 foreach(var kvp in sortedKeys){
-                    Assert.Equal(kvp.Key, kvp.Value);
-                    Assert.True(kvp.Key >= lastKey);
+                    allOk = allOk && kvp.Key == kvp.Value;
+                    allOk = allOk && kvp.Key >= lastKey;                    
                     lastKey = kvp.Key;
                 }
+                Assert.True(allOk);
 
                 return dict;
             }
@@ -163,9 +174,10 @@ namespace BinaryTrie.PerformanceTests{
                 var sortedKeys = dict.OrderBy(x=>x.Key);
 
                 var lastKey = -1;
+                var allOk = true;
                 foreach(var kvp in sortedKeys){
-                    Assert.Equal(kvp.Key, kvp.Value);
-                    Assert.True(kvp.Key >= lastKey);
+                    allOk = allOk && kvp.Key == kvp.Value;
+                    allOk = allOk && kvp.Key >= lastKey;                    
                     lastKey = kvp.Key;
                 }
 

@@ -13,7 +13,7 @@ namespace BinaryTrie.PerformanceTests{
             Console.Write($"[{testCaseName}]: ");
             _container.Value = null;;
             
-            GC.Collect();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, blocking: true);
             
             var bytesStart = GC.GetTotalMemory(true);
             var gc0CollectionsStart = GC.CollectionCount(0);
@@ -30,7 +30,7 @@ namespace BinaryTrie.PerformanceTests{
             
             var bytesEnd = GC.GetTotalMemory(false);
             
-            GC.Collect();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, blocking: true);
             
             var bytesClean = GC.GetTotalMemory(true);
             

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BinaryTrieImpl
 {
@@ -72,7 +73,7 @@ namespace BinaryTrieImpl
 
         public int Size()
         {
-            return _data[0].Size();
+            return _data.Sum(x=>x.Size());
         }
     }
 }

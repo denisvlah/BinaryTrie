@@ -25,10 +25,14 @@ namespace BinaryTrie.PerformanceTests{
                     dict[i] = i;
                 }
 
+                var allOk = true;
+
                 for (int i=TotalKeys; i>=0; i--){
                     var value = dict[i];
-                    Assert.Equal(i, value);
+                    allOk = allOk && i == value;                    
                 }
+
+                Assert.True(allOk);
 
                 return dict;
             }
@@ -50,11 +54,14 @@ namespace BinaryTrie.PerformanceTests{
                 for (int i=0; i<=TotalKeys; i++){
                     dict[i] = i;
                 }
+                var allOk = true;
 
                 for (int i=TotalKeys; i>=0; i--){
                     var value = dict[i];
-                    Assert.Equal(i, value);
+                    allOk = allOk && i == value;                    
                 }
+
+                Assert.True(allOk);
 
                 return dict;
             }
@@ -78,10 +85,13 @@ namespace BinaryTrie.PerformanceTests{
                     trie.Add(i, i);
                 }
 
+                var allOk = true;
                 for (int i=TotalKeys; i>=0; i--){
                     var value = trie.GetValue(i, -1);
-                    Assert.Equal(i, value);
+                    allOk = allOk && value == i;
                 }
+
+                Assert.True(allOk);
 
                 return trie;
             }
@@ -110,11 +120,14 @@ namespace BinaryTrie.PerformanceTests{
                     trie.Add(i, i);
                 }
 
+                var allOk = true;
                 for (int i = TotalKeys; i >= 0; i--)
                 {
                     var value = trie.GetValue(i, -1);
-                    Assert.Equal(i, value);
+                    allOk = allOk && value == i;
                 }
+
+                Assert.True(allOk);
 
                 return trie;
             }
@@ -139,10 +152,13 @@ namespace BinaryTrie.PerformanceTests{
                     trie.Add(i, i);
                 }
 
+                var allOk = true;
                 for (int i=TotalKeys; i>=0; i--){
                     var value = trie.GetValue(i, -1);
-                    Assert.Equal(i, value);
+                    allOk = allOk && value == i;
                 }
+
+                Assert.True(allOk);
 
                 return trie;
             }
@@ -212,13 +228,15 @@ namespace BinaryTrie.PerformanceTests{
                     dict[i] = i;
                 }
 
+                var allOk = true;
                 for (int i=TotalKeys; i>=0; i--){
                     var value = dict[i];
-                    Assert.Equal(i, value);
+                    allOk = allOk && i == value;                    
                 }
+                Assert.True(allOk);
 
                 return dict;
-            }
+            }            
 
             var oldCount = TotalKeys;
             TotalKeys = 100000;
@@ -238,10 +256,13 @@ namespace BinaryTrie.PerformanceTests{
                     dict[i] = i;
                 }
 
+                var allOk = true;
                 for (int i=TotalKeys; i>=0; i--){
                     var value = dict[i];
-                    Assert.Equal(i, value);
+                    allOk = allOk && value == i;
                 }
+
+                Assert.True(allOk);
 
                 return dict;
             }
