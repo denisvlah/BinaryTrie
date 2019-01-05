@@ -97,6 +97,39 @@ namespace BinaryTrie.PerformanceTests{
         }
 
         [Fact]
+        public void UsingArrayBackedTrie()
+        {
+            object f1()
+            {
+
+                var container = new ArrayBackedNodesContainer<int>(TotalKeys*32);
+                var trie = new PlugableBinaryTrie<int>(container);
+
+                for (int i = TotalKeys; i >= 0; i--)
+                {
+                    trie.Add(i, i);
+                }
+
+                for (int i = TotalKeys; i >= 0; i--)
+                {
+                    var value = trie.GetValue(i, -1);
+                    Assert.Equal(i, value);
+                }
+
+                return trie;
+            }
+
+            var oldCount = TotalKeys;
+            TotalKeys = 100000;
+            var disp = f1() as IDisposable;
+            disp.Dispose();
+            TotalKeys = oldCount;
+
+            var execution = H.Run(f1);
+            this.output.WriteLine(execution.ToString());
+        }
+
+        [Fact]
         public void UsingArrayBackedGrowableTrieWithSortedInput(){
             object f1(){
                 var container = new GrowableArrayBackedNodeContainer<int>();

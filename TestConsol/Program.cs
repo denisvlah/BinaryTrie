@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Runtime.InteropServices;
-using System.Collections.Generic;
+using BinaryTrieImpl;
 
 namespace TestConsol
 {
@@ -10,37 +7,32 @@ namespace TestConsol
     {
         static void Main(string[] args)
         {
-            var list = new List<int>();
-            var array = new int[10];
-            
-            using (var mmf = MemoryMappedFile.CreateFromFile("ImgA", FileMode.OpenOrCreate, null, 900000L))
+            //var container = new ArrayBackedNodesContainer<int>(initialSize:32000000);
+            var container = new GrowableArrayBackedNodeContainer<int>();
+            var trie = new PlugableBinaryTrie<int>(container);
+
+            for(int i=1000000; i>0; i--)
             {
-                using (var accessor = mmf.CreateViewAccessor(0, 900000))
-                {
-                    int colorSize = Marshal.SizeOf(typeof(MyColor));
-                    MyColor color;
+                trie.Add(i, i);
+            }
 
-                    color.G = 10;
-                    color.R = 10;
-                    color.B = 10;
-                    
-                    accessor.Write(0, ref color);
+            var allOk = true;
+            for(int i=1; i<=1000000; i++)
+            {
+                var value = trie.GetValue(i);
+                allOk = allOk & value == i;
+            }
 
-                    color.G = -100;
-
-                    accessor.Read(0,out MyColor myColor2);
-                    
-                    
-                    
-                }
+            if (allOk)
+            {
+                Console.WriteLine("All Ok.");
+            }
+            else
+            {
+                Console.WriteLine("Something is wrong.");
             }
         }
     }
 
-    struct MyColor
-    {
-        public int R;
-        public int G;
-        public int B;
-    }
+    
 }

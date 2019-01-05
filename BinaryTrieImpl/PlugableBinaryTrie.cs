@@ -2,28 +2,31 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Runtime.CompilerServices;
 
 namespace BinaryTrieImpl
-{    
+{
 
     public class PlugableBinaryTrie<T>: IDisposable
     {
         //TODO: implement thread safity and custom serialization
         private readonly INodesContainer<T> _nodes;                
         private int _maxKeySize = 0;
-        private int[] _invertedMasks = new int[32];    
+        private static readonly int[] _invertedMasks = new int[32];
+
+        static PlugableBinaryTrie()
+        {
+            for (int i = 0; i < 32; i++)
+            {
+                _invertedMasks[i] = 1 << i;
+            }
+
+            _invertedMasks = _invertedMasks.Reverse().ToArray();
+        }
 
         public PlugableBinaryTrie(INodesContainer<T> container)
         {
             _nodes = container ?? throw new ArgumentNullException(nameof(container));
             _nodes.InitFirstNode();
-            for(int i=0; i<32; i++){
-                _invertedMasks[i] = 1 << i;
-            }
-
-            _invertedMasks = _invertedMasks.Reverse().ToArray();
-            
         }
 
         
