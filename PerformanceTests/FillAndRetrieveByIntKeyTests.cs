@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using BinaryTrieImpl;
 using Xunit;
 using Xunit.Abstractions;
+using System.IO;
 
 namespace BinaryTrie.PerformanceTests{
-    public class FillAndRetrieveByIntKeyTests {
+    public class FillAndRetrieveByIntKeyTests: IDisposable {
 
         //TODO: implement warmap
         private ITestOutputHelper output;
@@ -45,34 +46,7 @@ namespace BinaryTrie.PerformanceTests{
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
         }
-
-        [Fact]
-        public void UsingSortedDictionaryWithSortedInput(){
-            object f1(){
-                var dict = new SortedDictionary<int,int>();
-
-                for (int i=0; i<=TotalKeys; i++){
-                    dict[i] = i;
-                }
-                var allOk = true;
-
-                for (int i=TotalKeys; i>=0; i--){
-                    var value = dict[i];
-                    allOk = allOk && i == value;                    
-                }
-
-                Assert.True(allOk);
-
-                return dict;
-            }
-            var oldCount = TotalKeys;
-            TotalKeys = 100000;
-            f1();
-            TotalKeys = oldCount;
-
-            var execution = H.Run(f1);
-            this.output.WriteLine(execution.ToString());            
-        }
+        
 
         [Fact]
         public void UsingArrayBackedGrowableTrie(){
@@ -142,111 +116,41 @@ namespace BinaryTrie.PerformanceTests{
             this.output.WriteLine(execution.ToString());
         }
 
-        [Fact]
-        public void UsingArrayBackedGrowableTrieWithSortedInput(){
-            object f1(){
-                var container = new GrowableArrayBackedNodeContainer<int>();
-                var trie = new PlugableBinaryTrie<int>(container);
+        
 
-                for (int i=0; i<=TotalKeys; i++){
-                    trie.Add(i, i);
-                }
-
-                var allOk = true;
-                for (int i=TotalKeys; i>=0; i--){
-                    var value = trie.GetValue(i, -1);
-                    allOk = allOk && value == i;
-                }
-
-                Assert.True(allOk);
-
-                return trie;
-            }
-
-            var oldCount = TotalKeys;
-            TotalKeys = 100000;
-            f1();
-            TotalKeys = oldCount;
-
-            var execution = H.Run(f1);
-            this.output.WriteLine(execution.ToString());            
-        }
-
-        /* 
-
-        [Fact(Skip="Memory mapped containers are slow for now")]
+        [Fact()]
         public void UsingGrowableMemoryMapedTrie(){
             object f1(){
-                var container = new GrowableMemoryMappedNodeContainer<int>();
+                var container = new GrowableMemoryMappedNodeContainer<int>(size:TotalKeys*32);
                 var trie = new PlugableBinaryTrie<int>(container);
 
                 for (int i=TotalKeys; i>=0; i--){
                     trie.Add(i, i);
                 }
 
-                for (int i=TotalKeys; i>=0; i--){
-                    var value = trie.GetValue(i, -1);
-                    Assert.Equal(i, value);
-                }
-
-                return trie;
-            }
-
-            var execution = H.Run(f1);
-            this.output.WriteLine(execution.ToString());            
-        }
-
-        [Fact(Skip="Memory mapped containers are slow for now")]
-        public void UsingGrowableMemoryMapedTrieWithSortedInput(){
-            object f1(){
-                var container = new GrowableMemoryMappedNodeContainer<int>();
-                var trie = new PlugableBinaryTrie<int>(container);
-
-                for (int i=0; i<=TotalKeys; i++){
-                    trie.Add(i, i);
-                }
-
-                for (int i=TotalKeys; i>=0; i--){
-                    var value = trie.GetValue(i, -1);
-                    Assert.Equal(i, value);
-                }
-
-                return trie;
-            }
-
-            var execution = H.Run(f1);
-            this.output.WriteLine(execution.ToString());            
-        }
-        */
-
-        [Fact]
-        public void UsingDictionaryWithoutCapacity(){
-            object f1(){
-                var dict = new Dictionary<int,int>();
-
-                for (int i=TotalKeys; i>=0; i--){
-                    dict[i] = i;
-                }
-
+                Assert.Equal(trie.Count, TotalKeys +1);
                 var allOk = true;
-                for (int i=TotalKeys; i>=0; i--){
-                    var value = dict[i];
-                    allOk = allOk && i == value;                    
+                for (int i=0; i<=TotalKeys; i++){
+                    var value = trie.GetValue(i, -1);
+                    allOk = allOk && value == i;                    
                 }
+
                 Assert.True(allOk);
+                return trie;
+            }
 
-                return dict;
-            }            
-
-            var oldCount = TotalKeys;
-            TotalKeys = 100000;
-            f1();
-            TotalKeys = oldCount;
+            var oldKeysCount = TotalKeys;
+            TotalKeys = 10000;
+            var testTrie = f1() as IDisposable;
+            testTrie.Dispose();
+            Dispose();
+            TotalKeys = oldKeysCount;
 
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
-        }
+        }       
 
+     
         [Fact]
         public void UsingDictionaryWithCapacity(){
             object f1(){
@@ -274,6 +178,14 @@ namespace BinaryTrie.PerformanceTests{
 
             var execution = H.Run(f1);
             this.output.WriteLine(execution.ToString());            
+        }
+
+        public void Dispose()
+        {
+            var allFiles = Directory.EnumerateFileSystemEntries(".", "data_*.bin", SearchOption.AllDirectories);
+            foreach(var path in allFiles){
+                File.Delete(path);
+            }
         }
     }
 
